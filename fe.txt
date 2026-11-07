@@ -1,0 +1,33 @@
+Ba công nghệ đều chạy phía server bằng C#, đều gọi API như nhau — khác nhau ở cách tổ chức code và vòng đời một lần tương tác. Anh nắm vòng đời của từng cái là trả lời được.
+
+1. Razor Pages — cơ chế "mỗi trang một cặp file"
+
+Mỗi trang gồm 2 file đi đôi: Index.cshtml (HTML + cú pháp Razor) và Index.cshtml.cs chứa class PageModel xử lý phía sau.
+URL ánh xạ thẳng vào cấu trúc thư mục Pages/ — không cần cấu hình route: /Products/Details là file Pages/Products/Details.cshtml.
+Vòng đời: trình duyệt gửi GET → ASP.NET Core tìm đúng trang → chạy hàm OnGet() trong PageModel (nơi gọi API lấy dữ liệu, gán vào các property) → file .cshtml đọc các property đó render thành HTML hoàn chỉnh → trả về trình duyệt.
+Bấm nút/gửi form: POST về chính trang đó → chạy OnPost() (dữ liệu form tự được model binding điền vào property) → xử lý xong thường RedirectToPage về lại trang (mẫu Post–Redirect–Get, tránh gửi lại form khi F5).
+Tính chất: mỗi lần tương tác là một vòng request–response và nạp lại trang, server không giữ trạng thái gì giữa các lần.
+
+2. MVC — cơ chế "Controller điều phối"
+
+Ba vai: Controller nhận request và điều phối, View (.cshtml) chỉ lo hiển thị, Model/ViewModel là dữ liệu đưa sang View.
+Vòng đời: URL theo mẫu {controller}/{action}/{id} → hệ thống định tuyến (routing) tìm controller → tạo controller (qua DI) → chạy action tương ứng → action gọi API, gom dữ liệu vào ViewModel → return View(model) → Razor view engine render HTML → trả về trình duyệt.
+Bấm nút cũng là một vòng POST → action → thường RedirectToAction sang trang khác.
+Khác Razor Pages ở cách tổ chức: một controller chứa nhiều action lo cho cả một khu chức năng (HomeController: Index, Details...), còn Razor là một PageModel gắn với đúng một trang. Tính chất vẫn là nạp lại trang theo từng request như Razor.
+
+3. Blazor — cơ chế "component sống trên server"
+
+Giao diện là một cây component .razor — mỗi component tự giữ trạng thái và vòng đời riêng (OnInitialized chạy khi component khởi tạo...).
+Lần mở trang đầu tiên: server render HTML trước cho nhanh, sau đó trình duyệt mở một kết nối SignalR liên tục (WebSocket) với server — gọi là một circuit. Các component thật sự sống trong bộ nhớ server.
+Bấm nút: sự kiện click được gửi qua SignalR lên server → hàm xử lý trong component chạy bằng C# ngay trên server (từ đây gọi API như bình thường) → trạng thái component thay đổi → Blazor tính ra phần HTML nào thay đổi và chỉ gửi mẩu thay đổi đó về → trình duyệt vá vào trang. Không nạp lại trang — cảm giác như app một trang (SPA) nhưng không viết JavaScript.
+Đánh đổi cần nhớ nếu thầy hỏi: mượt thì mượt thật, nhưng server phải giữ trạng thái cho từng người dùng đang mở trang (tốn bộ nhớ, mất kết nối là mất circuit) — trong khi Razor/MVC quên sạch giữa hai request nên nhẹ server hơn.
+
+Bảng chốt để thuộc:
+
+	Razor Pages	MVC	Blazor
+Đơn vị tổ chức	Trang + PageModel	Controller + Action + View	Component .razor
+Ai xử lý khi bấm nút	OnPost() của trang đó	Action trong Controller	Hàm sự kiện trong component
+Cách cập nhật giao diện	Nạp lại cả trang	Nạp lại cả trang	Chỉ vá phần thay đổi qua SignalR
+Giữ trạng thái ở server	Không	Không	Có — trong circuit SignalR
+
+Câu mẫu tổng kết nếu thầy hỏi "giống và khác nhau thế nào": "Ba công nghệ giống nhau ở tầng dưới — cùng gọi một API, cùng dùng chung giao diện UiKit nên kết quả hiển thị như nhau. Khác nhau ở tầng trình bày: Razor Pages tổ chức theo trang, MVC tổ chức theo controller, còn Blazor tổ chức theo component và giữ kết nối SignalR để cập nhật giao diện không cần nạp lại trang."
