@@ -296,6 +296,22 @@ def check_management(page, api, name, base, email):
     record(name, "prevent locking the last active administrator")
 
 
+def check_images(page):
+    page.locator("img").evaluate_all("images => images.forEach(image => image.loading = 'eager')")
+    page.wait_for_function(
+        "Array.from(document.images).every(image => image.complete && image.naturalWidth > 0)",
+        timeout=12000,
+    )
+    sources = page.locator("img").evaluate_all("images => images.map(image => image.currentSrc)")
+    for source in set(sources):
+        for encoding in ["identity", "gzip, br"]:
+            response = page.request.get(source, headers={"Accept-Encoding": encoding})
+            assert response.status == 200, f"Image request failed: {source} ({encoding})"
+            assert response.headers.get("content-type", "").startswith("image/"), source
+            # A stale compressed asset endpoint can return HTTP 200 with an empty body.
+            assert response.body(), f"Empty image response: {source} ({encoding})"
+
+
 def check_app(browser, api, name, base):
     blazor = name == "BlazorWeb"
     context = browser.new_context(viewport={"width": 1440, "height": 1000}, locale="vi-VN")
@@ -308,9 +324,7 @@ def check_app(browser, api, name, base):
         goto(page, base, "/")
         expect(page.locator(".product-card")).to_have_count(12)
         no_error(page)
-        assert page.locator(".product-image img").first.evaluate(
-            "(img) => img.complete && img.naturalWidth > 0"
-        )
+        check_images(page)
         page.screenshot(path=str(OUTPUT / f"{name}-catalog.png"), full_page=True)
         for sort in ["price-asc", "price-desc"]:
             goto(page, base, f"/?sort={sort}", blazor)
@@ -323,6 +337,7 @@ def check_app(browser, api, name, base):
             page.locator(".product-card .product-image").first.get_attribute("href")
             == "/products/" + expected[0]["slug"]
         )
+        check_images(page)
         goto(page, base, "/?q=not-a-real-product", blazor)
         expect(page.locator(".empty-state")).to_be_visible()
         record(name, "catalog, images, numeric price sorting, empty search")
