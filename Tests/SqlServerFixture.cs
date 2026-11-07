@@ -26,11 +26,11 @@ public sealed class SqlServerFixture : IAsyncLifetime
     private readonly List<string> userIds = [];
     private readonly List<int> productIds = [];
     private readonly List<int> categoryIds = [];
-    public WebApplicationFactory<Program> Factory => factory ?? throw new InvalidOperationException("Thiếu cấu hình SQL Server.");
+    public WebApplicationFactory<Program> Factory => factory ?? throw new InvalidOperationException("Thiếu cấu hình cơ sở dữ liệu.");
     public async Task InitializeAsync()
     {
         if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")))
-            return;
+            Environment.SetEnvironmentVariable("ConnectionStrings__DefaultConnection", "Data Source=ElectroShop_Test.db");
         // Key ngẫu nhiên chỉ dùng trong process test khi chưa có key development.
         if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("Jwt__Key")))
             Environment.SetEnvironmentVariable("Jwt__Key", Convert.ToHexString(RandomNumberGenerator.GetBytes(48)));

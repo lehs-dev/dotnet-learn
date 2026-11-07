@@ -1,10 +1,10 @@
 # ElectroShop — học ASP.NET Core qua ba website
 
-Solution .NET 10 / C# 14 gồm Razor Pages, Blazor Web App **Interactive Server**, MVC, dùng chung một ASP.NET Core Web API và một Microsoft SQL Server database **ElectroShopDb**. Nội dung tiếng Việt, tiền VND, giao diện responsive thống nhất bằng UiKit. Không dùng React, Tailwind, SQLite, EF InMemory hoặc dữ liệu giả ở frontend.
+Solution .NET 10 / C# 14 gồm Razor Pages, Blazor Web App **Interactive Server**, MVC, dùng chung một ASP.NET Core Web API và cơ sở dữ liệu SQLite (**ElectroShop.db**) gọn nhẹ. Nội dung tiếng Việt, tiền VND, giao diện responsive thống nhất bằng UiKit. Không dùng React, Tailwind, EF InMemory hoặc dữ liệu giả ở frontend.
 
 ## Bắt đầu nhanh trong workspace hiện tại
 
-.NET SDK 10.0.401 và SQL Server của `.devcontainer` đã được kiểm tra. `.devcontainer` được giữ nguyên. Tệp **`.env` cục bộ đã được tạo, quyền600 và được gitignore**, dùng thông tin SQL có sẵn của container cùng JWT key/mật khẩu Admin được sinh ngẫu nhiên. Xem `Seed__AdminEmail` và `Seed__AdminPassword` trong `.env` bằng IDE để đăng nhập; không đưa tệp này lên Git hoặc chia sẻ.
+.NET SDK 10 và Dev Container đã được cấu hình với SQLite. Tệp **`.env` cục bộ đã được tạo**, dùng cấu hình SQLite cùng JWT key/mật khẩu Admin. Xem `Seed__AdminEmail` và `Seed__AdminPassword` trong `.env` bằng IDE để đăng nhập; không đưa tệp này lên Git hoặc chia sẻ.
 
 ```bash
 ./scripts/run-all.sh
@@ -47,7 +47,7 @@ Mo-ta-du-an-ElectroShop.pdf     Tài liệu mô tả dự án đầy đủ (ki�
 DatabaseFirst/                  Minh chứng Database First: schema.sql + project scaffold từ DB
 ```
 
-Frontend chỉ tham chiếu Shared+UiKit, gọi API qua HTTP; không tham chiếu API/DbContext/Entities. Tests tham chiếu API. Luồng tổng quát: **Browser → Frontend server → API → EF Core → SQL Server**.
+Frontend chỉ tham chiếu Shared+UiKit, gọi API qua HTTP; không tham chiếu API/DbContext/Entities. Tests tham chiếu API. Luồng tổng quát: **Browser → Frontend server → API → EF Core → SQLite**.
 
 ## Chức năng
 
@@ -61,11 +61,10 @@ Frontend chỉ tham chiếu Shared+UiKit, gọi API qua HTTP; không tham chiế
 
 ## Cấu hình trên một máy/workspace mới
 
-Cần .NET SDK10, SQL Server2019+ đang chạy, Bash/curl. Không cài lại .NET/SQL nếu đã có. EF CLI được quản lý bằng local tool manifest `dotnet-tools.json`.
+Cần .NET SDK 10, Bash/curl. CSDL SQLite được tích hợp sẵn dưới dạng file, không cần cài thêm SQL Server. EF CLI được quản lý bằng local tool manifest `dotnet-tools.json`.
 
 ```bash
 cp .env.example .env
-# Chỉnh .env bằng IDE theo SQL Server thực tế, thay toàn bộ REPLACE_...
 dotnet restore ElectroShop.sln
 dotnet tool restore
 ```
@@ -74,7 +73,7 @@ Biến cấu hình quan trọng:
 
 | Biến | Ý nghĩa |
 |---|---|
-| `ConnectionStrings__DefaultConnection` | Server/database/user/password SQL, database ElectroShopDb |
+| `ConnectionStrings__DefaultConnection` | Đường dẫn SQLite database, mặc định `Data Source=ElectroShop.db` |
 | `Jwt__Key` | Bí mật ngẫu nhiên tối thiểu32 byte; `openssl rand -hex 48` tạo một giá trị riêng |
 | `Jwt__Issuer` / `Jwt__Audience` | Mặc định ElectroShop.Api / ElectroShop.Frontends |
 | `Seed__AdminEmail` / `Seed__AdminPassword` | Chỉ seed Admin trong Development; password >=8 gồm hoa/thường/số/ký tự đặc biệt |

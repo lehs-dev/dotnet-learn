@@ -30,7 +30,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         b.Property(x => x.Description).HasMaxLength(4000);
         b.Property(x => x.ImageUrl).HasMaxLength(500);
         b.Property(x => x.Price).HasPrecision(18, 2);
-        b.Property(x => x.RowVersion).IsRowVersion();
+        b.Property(x => x.RowVersion).IsConcurrencyToken();
         b.HasIndex(x => x.SKU).IsUnique();
         b.HasIndex(x => x.Slug).IsUnique();
         b.HasOne(x => x.Category).WithMany(x => x.Products).HasForeignKey(x => x.CategoryId).OnDelete(DeleteBehavior.Restrict);
@@ -68,7 +68,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         b.Property(x => x.ShippingAddress).HasMaxLength(500);
         b.Property(x => x.Note).HasMaxLength(1000);
         b.Property(x => x.TotalAmount).HasPrecision(18, 2);
-        b.Property(x => x.RowVersion).IsRowVersion();
+        b.Property(x => x.RowVersion).IsConcurrencyToken();
         b.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict);
         b.ToTable(t => t.HasCheckConstraint("CK_Order_Total", "[TotalAmount] >= 0"));
     }

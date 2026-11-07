@@ -1,5 +1,0 @@
-IF DB_ID(N'ApplicationDB') IS NULL
-BEGIN
-    CREATE DATABASE ApplicationDB;
-END;
-GO

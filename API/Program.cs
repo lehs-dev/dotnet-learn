@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 var connection = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(string.IsNullOrWhiteSpace(connection) ? "Server=db;Database=ElectroShopDb;Integrated Security=true;TrustServerCertificate=true" : connection, sql => sql.UseCompatibilityLevel(150)));
+builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlite(string.IsNullOrWhiteSpace(connection) ? "Data Source=ElectroShop.db" : connection));
 builder.Services.AddIdentityCore<ApplicationUser>(o => { o.User.RequireUniqueEmail = true; o.Password.RequiredLength = 8; o.Lockout.MaxFailedAccessAttempts = 5; o.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10); })
  .AddRoles<IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
 var key = builder.Configuration["Jwt:Key"];
@@ -70,7 +70,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 if (app.Environment.IsDevelopment()) app.MapOpenApi();
-app.MapGet("/health", async (AppDbContext db, CancellationToken ct) => await db.Database.CanConnectAsync(ct) ? Results.Ok(new { status = "Healthy", database = "ElectroShopDb" }) : Results.Problem(statusCode: 503, detail: "SQL Server chưa sẵn sàng."));
+app.MapGet("/health", async (AppDbContext db, CancellationToken ct) => await db.Database.CanConnectAsync(ct) ? Results.Ok(new { status = "Healthy", database = "ElectroShopDb" }) : Results.Problem(statusCode: 503, detail: "Cơ sở dữ liệu chưa sẵn sàng."));
 if (builder.Configuration.GetValue<bool>("Database:Initialize") || args.Contains("--seed-only") || args.Contains("--create-admin"))
 {
     await using var scope = app.Services.CreateAsyncScope();
