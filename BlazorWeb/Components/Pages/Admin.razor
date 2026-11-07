@@ -1,0 +1,31 @@
+@page "/admin"
+@attribute [Authorize(Roles = "Admin")]
+@inject NavigationManager Navigation
+@using ElectroShop.Blazor.Components.Admin
+<PageTitle>Quản trị | ElectroShop</PageTitle>
+<div class="page-heading"><div><span class="eyebrow">TRUNG TÂM QUẢN TRỊ</span><h1>Quản lý cửa hàng</h1></div><a href="/">Xem cửa hàng →</a></div>
+<div class="admin-layout">
+    <nav class="admin-sidebar" aria-label="Khu vực quản trị">
+        @foreach(var item in tabs)
+        {
+            <button type="button" class="tab-button @(tab == item.Key ? "active" : "")" aria-pressed="@(tab == item.Key)" @onclick="() => SetTab(item.Key)">@item.Value</button>
+        }
+    </nav>
+    <div class="admin-content">
+        @switch(tab)
+        {
+            case "orders": <OrdersPanel /> break;
+            case "products": <ProductsPanel /> break;
+            case "customers": <CustomersPanel /> break;
+            case "accounts": <AccountsPanel /> break;
+            default: <DashboardPanel /> break;
+        }
+    </div>
+</div>
+@code {
+    [SupplyParameterFromQuery(Name = "tab")] public string? ActiveTab { get; set; }
+    private string tab = "dashboard";
+    protected override void OnParametersSet() => tab = ActiveTab is not null && tabs.ContainsKey(ActiveTab) ? ActiveTab : "dashboard";
+    private void SetTab(string key) => Navigation.NavigateTo("/admin?tab=" + key);
+    private readonly Dictionary<string, string> tabs = new() { ["dashboard"] = "Tổng quan", ["orders"] = "Đơn hàng", ["products"] = "Sản phẩm & danh mục", ["customers"] = "Khách hàng", ["accounts"] = "Tài khoản" };
+}

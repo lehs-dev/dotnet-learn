@@ -1,0 +1,8 @@
+@inject NavigationManager Navigation
+<p>Vui lòng đăng nhập để tiếp tục.</p>
+@code {
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender) Navigation.NavigateTo("/?login=1", forceLoad: true);
+    }
+}

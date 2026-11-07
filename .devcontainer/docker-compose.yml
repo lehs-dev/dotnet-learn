@@ -1,0 +1,17 @@
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/dotnet:2-10.0-noble
+    volumes:
+      - ../..:/workspaces:cached
+    command: sleep infinity
+    network_mode: service:db
+    depends_on:
+      db:
+        condition: service_started
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${SA_PASSWORD:-P@ssw0rd}

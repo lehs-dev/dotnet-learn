@@ -1,0 +1,97 @@
+@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<header class="site-header">
+    <div class="container header-inner">
+        <a href="/" class="logo"><span class="logo-mark">E</span> ElectroShop <span class="badge">.NET 10</span></a>
+        <form action="/" method="get" class="search-form" role="search">
+            <input name="q" aria-label="Tìm sản phẩm" placeholder="Tìm sản phẩm bạn yêu thích..." />
+            <button type="submit" class="button small">Tìm kiếm</button>
+        </form>
+        <nav class="nav-links" aria-label="Điều hướng chính">
+            <NavLink href="/" Match="NavLinkMatch.All">Trang chủ</NavLink>
+            <NavLink href="/cart">Giỏ hàng</NavLink>
+            <NavLink href="/orders">Đơn hàng</NavLink>
+            <AuthorizeView Roles="Admin"><NavLink href="/admin">Quản trị</NavLink></AuthorizeView>
+        </nav>
+        <div class="account-actions">
+            <AuthorizeView Context="account">
+                <Authorized>
+                    <span>@account.User.Identity?.Name</span>
+                    <form method="post" action="/auth/logout" data-enhance="false"><AntiforgeryToken /><button class="button secondary small" type="submit">Đăng xuất</button></form>
+                </Authorized>
+                <NotAuthorized>
+                    <button class="button secondary small" @onclick='() => Open("login-dialog")'>Đăng nhập</button>
+                    <button class="button small" @onclick='() => Open("register-dialog")'>Đăng ký</button>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+    </div>
+</header>
+<main class="container main-content">@if (accessDenied) { <div class="alert error" role="alert">Bạn không có quyền truy cập trang quản trị.</div> }@Body</main>
+<footer class="site-footer">
+    <div class="container footer-inner">
+        <div><a href="/" class="logo"><span class="logo-mark">E</span> ElectroShop</a><p>Website phục vụ học tập .NET 10.</p></div>
+        <div><p>Thanh toán sandbox — không chuyển tiền thật.</p><small>Razor Pages · Blazor · MVC</small></div>
+    </div>
+</footer>
+<dialog id="login-dialog" class="auth-dialog" aria-labelledby="login-title">
+    <div class="dialog-heading"><h2 id="login-title">Chào mừng trở lại</h2><button type="button" class="button secondary small" aria-label="Đóng" @onclick='() => Close("login-dialog")'>×</button></div>
+    <p>Đăng nhập để mua sắm và theo dõi đơn hàng.</p>
+    @if (!string.IsNullOrEmpty(authError) && !isRegistration) { <div class="alert error" role="alert">@authError</div> }
+    <form method="post" action="/auth/login" data-enhance="false">
+        <AntiforgeryToken /><input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
+        <label class="field">Email<input type="email" name="Email" required maxlength="256" autocomplete="email" /></label>
+        <label class="field">Mật khẩu<input type="password" name="Password" required autocomplete="current-password" /></label>
+        <button class="button full-width" type="submit">Đăng nhập</button>
+    </form>
+    <p>Chưa có tài khoản? <button class="button secondary small" @onclick="SwitchToRegister">Đăng ký ngay</button></p>
+</dialog>
+<dialog id="register-dialog" class="auth-dialog" aria-labelledby="register-title">
+    <div class="dialog-heading"><h2 id="register-title">Tạo tài khoản</h2><button type="button" class="button secondary small" aria-label="Đóng" @onclick='() => Close("register-dialog")'>×</button></div>
+    @if (!string.IsNullOrEmpty(authError) && isRegistration) { <div class="alert error" role="alert">@authError</div> }
+    <form method="post" action="/auth/register" data-enhance="false">
+        <AntiforgeryToken /><input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
+        <label class="field">Họ tên<input name="FullName" required minlength="2" maxlength="100" autocomplete="name" /></label>
+        <label class="field">Email<input type="email" name="Email" required maxlength="256" autocomplete="email" /></label>
+        <label class="field">Số điện thoại<input type="tel" name="PhoneNumber" required maxlength="20" autocomplete="tel" /></label>
+        <label class="field">Mật khẩu<input type="password" name="Password" required minlength="8" autocomplete="new-password" /></label>
+        <small>Dùng ít nhất 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.</small>
+        <label class="field">Nhập lại mật khẩu<input type="password" name="ConfirmPassword" required minlength="8" autocomplete="new-password" /></label>
+        <button class="button full-width" type="submit">Đăng ký</button>
+    </form>
+</dialog>
+<div id="blazor-error-ui">Ứng dụng mất kết nối. <a href="">Tải lại trang</a></div>
+
+@code {
+    private string? authError;
+    private bool isRegistration, accessDenied;
+    private string ReturnUrl
+    {
+        get
+        {
+            var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(new Uri(Navigation.Uri).Query);
+            if (query.TryGetValue("ReturnUrl", out var original)) return original.ToString();
+            var path = "/" + Navigation.ToBaseRelativePath(Navigation.Uri);
+            return path.Contains("login=1") || path.Contains("register=1") ? "/" : path;
+        }
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(new Uri(Navigation.Uri).Query);
+        authError = query.TryGetValue("authError", out var error) ? error.ToString() : null;
+        isRegistration = query.ContainsKey("register");
+        accessDenied = query.ContainsKey("accessDenied");
+        if (accessDenied) StateHasChanged();
+        if (query.ContainsKey("login") || isRegistration)
+        {
+            StateHasChanged();
+            await Open(isRegistration ? "register-dialog" : "login-dialog");
+        }
+    }
+    private ValueTask Open(string id) => JS.InvokeVoidAsync("electroBlazor.open", id);
+    private ValueTask Close(string id) => JS.InvokeVoidAsync("electroBlazor.close", id);
+    private async Task SwitchToRegister() { await Close("login-dialog"); await Open("register-dialog"); }
+}

@@ -1,0 +1,95 @@
+@{ var authError = TempData["AuthError"] as string; var authModal = TempData["AuthModal"] as string ?? "login"; }
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] · ElectroShop</title>
+    <meta name="description" content="ElectroShop — cửa hàng điện tử phục vụ học tập ASP.NET Core .NET 10." />
+    <link rel="stylesheet" href="/_content/ElectroShop.UiKit/css/shop.css" />
+</head>
+<body>
+<header class="site-header">
+<div class="container header-inner">
+    <a class="logo" href="/" aria-label="ElectroShop trang chủ">
+<span class="logo-mark">E</span>ElectroShop<span class="badge">.NET 10</span>
+</a>
+    <form class="search-form" action="/" method="get">
+<input name="q" value="@Context.Request.Query["q"]" placeholder="Tìm sản phẩm bạn yêu thích..." aria-label="Tìm kiếm sản phẩm" />
+<button type="submit" class="button small">Tìm kiếm</button>
+</form>
+
+    <nav class="nav-links" aria-label="Điều hướng chính">
+<a href="/">Trang chủ</a>
+<a href="/cart">Giỏ hàng</a>
+<a href="/orders">Đơn hàng</a>@if (User.IsInRole("Admin")) { <a href="/admin">Quản trị</a> }</nav>
+    <div class="account-actions">@if (User.Identity?.IsAuthenticated == true) { <span>@User.Identity.Name</span>
+<form action="/auth/logout" method="post">@Html.AntiForgeryToken()<button class="button secondary small">Đăng xuất</button>
+</form>
+ } else { <button type="button" class="button secondary small" data-open-dialog="login-dialog">Đăng nhập</button>
+<button type="button" class="button small" data-open-dialog="register-dialog">Đăng ký</button> }</div>
+</div>
+</header>
+<main class="container main-content">
+    @if (TempData["Success"] is string success) { <div class="alert success" role="status">@success</div> }
+    @if (TempData["Error"] is string error) { <div class="alert error" role="alert">@error</div> }
+    @if (Context.Request.Query.ContainsKey("denied")) { <div class="alert error" role="alert">Bạn không có quyền truy cập trang quản trị.</div> }
+    @RenderBody()
+</main>
+<footer class="site-footer">
+    <div class="container footer-inner">
+        <div><a href="/" class="logo"><span class="logo-mark">E</span> ElectroShop</a><p>Website phục vụ học tập .NET 10.</p></div>
+        <div><p>Thanh toán sandbox — không chuyển tiền thật.</p><small>Razor Pages · Blazor · MVC</small></div>
+    </div>
+</footer>
+<dialog class="auth-dialog" id="login-dialog" aria-labelledby="login-title" data-auto-open="@((Context.Request.Query.ContainsKey("login") || authError != null) && authModal == "login" ? "true" : "false")">
+    <div class="dialog-heading">
+<div>
+<h2 id="login-title">Chào mừng trở lại</h2>
+</div>
+<button type="button" data-close-dialog aria-label="Đóng">×</button>
+</div>
+    @if (authError is not null && authModal == "login") { <div class="alert error" role="alert">@authError</div> }
+    <p>Đăng nhập để tiếp tục mua sắm tại ElectroShop.</p>
+    <form action="/auth/login" method="post">@Html.AntiForgeryToken()
+        <label class="field">Email<input type="email" name="Email" autocomplete="email" required maxlength="256" />
+</label>
+        <label class="field">Mật khẩu<input type="password" name="Password" autocomplete="current-password" required />
+</label>
+        <button class="button full-width">Đăng nhập</button>
+    </form>
+
+<p>Chưa có tài khoản? <button type="button" class="button secondary small" data-open-dialog="register-dialog">Đăng ký ngay</button>
+</p>
+</dialog>
+<dialog class="auth-dialog" id="register-dialog" aria-labelledby="register-title" data-auto-open="@(authError != null && authModal == "register" ? "true" : "false")">
+    <div class="dialog-heading">
+<div>
+<h2 id="register-title">Tạo tài khoản</h2>
+</div>
+<button type="button" data-close-dialog aria-label="Đóng">×</button>
+</div>
+    @if (authError is not null && authModal == "register") { <div class="alert error" role="alert">@authError</div> }
+    <form action="/auth/register" method="post">@Html.AntiForgeryToken()
+        <label class="field">Họ và tên<input name="FullName" autocomplete="name" required minlength="2" maxlength="100" />
+</label>
+        <label class="field">Email<input type="email" name="Email" autocomplete="email" required maxlength="256" />
+</label>
+        <label class="field">Số điện thoại<input type="tel" name="PhoneNumber" autocomplete="tel" required maxlength="20" />
+</label>
+        <label class="field">Mật khẩu<input type="password" name="Password" autocomplete="new-password" required minlength="8" />
+</label>
+        <label class="field">Nhập lại mật khẩu<input type="password" name="ConfirmPassword" autocomplete="new-password" required minlength="8" />
+</label>
+        <p class="full-width">Mật khẩu từ 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.</p>
+<button class="button full-width">Đăng ký</button>
+    </form>
+
+</dialog>
+<script src="/_content/ElectroShop.UiKit/js/shop.js">
+</script>
+<script src="/js/site.js" asp-append-version="true">
+</script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

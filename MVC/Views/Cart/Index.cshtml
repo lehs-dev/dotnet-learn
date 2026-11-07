@@ -1,0 +1,72 @@
+@model CartViewModel
+@{ ViewData["Title"] = "Giỏ hàng"; }
+<div class="page-heading">
+<div>
+<span class="eyebrow">MUA SẮM CỦA BẠN</span>
+<h1>Giỏ hàng</h1>
+</div>
+<a href="/">← Tiếp tục mua sắm</a>
+</div>
+@if (Model.Error is not null) { <div class="alert error" role="alert">@Model.Error</div> }
+else if (Model.Cart.Items.Count == 0) { <div class="empty-state">
+<h2>Giỏ hàng đang trống</h2>
+<p>Khám phá thiết bị công nghệ phù hợp với bạn.</p>
+<a class="button" href="/">Khám phá sản phẩm</a>
+</div> }
+else { <div class="cart-layout">
+<div>
+<div class="table-wrap">
+<table class="data-table">
+<thead>
+<tr>
+<th>Sản phẩm</th>
+<th>Đơn giá</th>
+<th>Số lượng</th>
+<th>Thành tiền</th>
+<th>
+</th>
+</tr>
+</thead>
+<tbody>@foreach (var item in Model.Cart.Items) { <tr>
+<td>
+<div class="cart-product">
+<img src="@item.ImageUrl" alt="@item.Name" width="64" height="64" />
+<div>
+<a href="/products/@item.Slug">@item.Name</a>
+<p class="product-meta">@(item.IsActive ? $"Còn {item.StockQuantity} sản phẩm" : "Sản phẩm đã ngừng bán")</p>
+</div>
+</div>
+</td>
+<td>@Display.Money(item.UnitPrice)</td>
+<td>
+<form action="/cart/update" method="post" class="inline-form">@Html.AntiForgeryToken()<input type="hidden" name="ProductId" value="@item.ProductId" />
+<input class="quantity-input" aria-label="Số lượng @item.Name" type="number" name="Quantity" value="@item.Quantity" min="1" max="@Math.Max(1, Math.Min(item.StockQuantity, 999))" required />
+<button class="button secondary small">Cập nhật</button>
+</form>
+
+</td>
+<td>@Display.Money(item.LineTotal)</td>
+<td>
+<form action="/cart/remove" method="post">@Html.AntiForgeryToken()<input type="hidden" name="productId" value="@item.ProductId" />
+<button class="button danger small">Xóa</button>
+</form>
+
+</td>
+</tr> }</tbody>
+</table>
+</div>
+<form action="/cart/clear" method="post" data-confirm="Xóa toàn bộ sản phẩm trong giỏ hàng?">@Html.AntiForgeryToken()<button class="button secondary small">Xóa toàn bộ giỏ</button>
+</form>
+
+</div>
+<aside class="summary-card">
+<h2>Tóm tắt giỏ hàng</h2>
+<p>@Model.Cart.Items.Sum(x => x.Quantity) sản phẩm</p>
+<div class="summary-total">
+<span>Tổng cộng</span>
+<strong>@Display.Money(Model.Cart.TotalAmount)</strong>
+</div>
+<p class="product-meta">Không thu tiền thật. Thanh toán phục vụ học tập.</p>
+<a class="button full-width" href="/checkout">Tiến hành thanh toán →</a>
+</aside>
+</div> }

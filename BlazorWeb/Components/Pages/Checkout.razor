@@ -1,0 +1,113 @@
+@page "/checkout"
+@attribute [Authorize]
+@inject ShopApiClient Api
+@inject NavigationManager Navigation
+<PageTitle>Thanh toán | ElectroShop</PageTitle>
+<div class="page-heading"><div><span class="eyebrow">SANDBOX PAYMENT</span><h1>Thanh toán</h1></div><a href="/cart">← Giỏ hàng</a></div>
+<div class="alert">Đây là cổng thanh toán mô phỏng phục vụ học tập. Không thu thập thông tin thẻ và không chuyển tiền thật.</div>
+@if (error is not null) { <div class="alert error" role="alert">@error</div> }
+@if (message is not null) { <div class="alert success" role="status">@message</div> }
+@if (loading) { <p class="loading">Đang tải thông tin thanh toán…</p> }
+else if (order is not null)
+{
+    <OrderDetails Order="order" />
+    @if (order.PaymentStatus == PaymentStatus.Success)
+    {
+        <div class="summary-card"><h2>Thanh toán thành công</h2><p>Mã đơn hàng: <strong>@order.OrderCode</strong>. Đơn hàng đã được lưu vào lịch sử mua hàng.</p><a class="button" href="/orders">Xem đơn hàng</a></div>
+    }
+    else if (order.OrderStatus != OrderStatus.Cancelled)
+    {
+        <section class="summary-card"><h2>Thanh toán đơn @order.OrderCode</h2><p>Tổng thanh toán: <strong>@Display.Money(order.TotalAmount)</strong></p><p>Bạn có thể thử lại trên chính đơn hàng này. Giỏ hàng được giữ nguyên khi thanh toán thất bại.</p>
+            <div class="inline-actions"><button class="button" disabled="@busy" @onclick="() => Pay(true)">Mô phỏng thành công</button><button class="button secondary" disabled="@busy" @onclick="() => Pay(false)">Mô phỏng thất bại</button></div>
+        </section>
+    }
+    else { <div class="alert error">Đơn hàng đã hủy, không thể thanh toán.</div> }
+}
+else if (cart is not null && cart.Items.Count > 0)
+{
+    <div class="cart-layout">
+        <EditForm Model="checkout" OnValidSubmit="Submit" FormName="checkout">
+            <DataAnnotationsValidator /><ValidationSummary />
+            <div class="summary-card"><h2>Thông tin giao hàng</h2><div class="form-grid">
+                <label class="field">Họ tên người nhận<InputText @bind-Value="checkout.ReceiverName" maxlength="100" autocomplete="name" /><ValidationMessage For="() => checkout.ReceiverName" /></label>
+                <label class="field">Số điện thoại<InputText @bind-Value="checkout.ReceiverPhone" maxlength="20" autocomplete="tel" /><ValidationMessage For="() => checkout.ReceiverPhone" /></label>
+                <label class="field full-width">Địa chỉ giao hàng<InputTextArea @bind-Value="checkout.ShippingAddress" maxlength="500" rows="3" autocomplete="street-address" /><ValidationMessage For="() => checkout.ShippingAddress" /></label>
+                <label class="field full-width">Ghi chú (tùy chọn)<InputTextArea @bind-Value="checkout.Note" maxlength="1000" rows="2" /></label>
+            </div><h3>Kết quả thanh toán mô phỏng</h3><label class="field">Lựa chọn<select @bind="simulateSuccess"><option value="true">Thanh toán thành công</option><option value="false">Thanh toán thất bại</option></select></label>
+            <button type="submit" class="button" disabled="@(busy || invalidCart)">@(busy ? "Đang xử lý…" : "Tạo đơn và thanh toán")</button></div>
+        </EditForm>
+        <aside class="summary-card"><h2>Đơn hàng của bạn</h2>@foreach(var item in cart.Items) { <p>@item.Name × @item.Quantity <strong>@Display.Money(item.LineTotal)</strong></p> }<hr /><p>Tổng tiền <strong>@Display.Money(cart.TotalAmount)</strong></p>@if(invalidCart) { <div class="alert error">Giỏ hàng có sản phẩm không còn đủ hàng. Vui lòng cập nhật giỏ hàng.</div> }</aside>
+    </div>
+}
+else if (cart is not null) { <div class="empty-state"><h2>Giỏ hàng đang trống</h2><a href="/" class="button">Tiếp tục mua sắm</a></div> }
+@code {
+    [SupplyParameterFromQuery(Name = "orderId")] public int? OrderId { get; set; }
+    private CheckoutRequest checkout = new();
+    private CartDto? cart;
+    private OrderDto? order;
+    private SandboxPaymentRequest? pendingPayment;
+    private bool simulateSuccess = true, busy, loading = true;
+    private string? error, message;
+    private bool invalidCart => cart?.Items.Any(x => !x.IsActive || x.Quantity > x.StockQuantity) ?? true;
+    protected override async Task OnParametersSetAsync()
+    {
+        loading = true; error = null;
+        try
+        {
+            if (OrderId is > 0)
+            {
+                order = await Api.GetAsync<OrderDto>($"api/orders/{OrderId}");
+                if (order.PaymentStatus == PaymentStatus.Failed)
+                    error = "Thanh toán mô phỏng thất bại. Bạn có thể thử lại trên chính đơn hàng này.";
+            }
+            else
+            {
+                cart = await Api.GetAsync<CartDto>("api/cart");
+                var user = await Api.GetAsync<UserDto>("api/auth/me");
+                checkout.ReceiverName = user.FullName; checkout.ReceiverPhone = user.PhoneNumber;
+            }
+        }
+        catch (ApiException ex) { error = ex.Message; }
+        finally { loading = false; }
+    }
+    private async Task Submit()
+    {
+        if (busy || invalidCart) return;
+        busy = true; error = message = null;
+        try
+        {
+            // Giữ CheckoutKey khi thử lại để cùng một yêu cầu không tạo hai đơn.
+            order = await Api.PostAsync<OrderDto>("api/orders", checkout);
+            await MakePayment(simulateSuccess);
+            Navigation.NavigateTo($"/checkout?orderId={order.Id}", replace: true);
+        }
+        catch (ApiException ex) { error = ex.Message; }
+        finally { busy = false; }
+    }
+    private async Task Pay(bool success)
+    {
+        if (busy) return;
+        busy = true; error = message = null;
+        try { await MakePayment(success); }
+        catch (ApiException ex) { error = ex.Message; }
+        finally { busy = false; }
+    }
+    private async Task MakePayment(bool success)
+    {
+        if (order is null) return;
+        // Nếu mất phản hồi HTTP, gửi lại cùng AttemptKey để nhận đúng kết quả đã xử lý.
+        pendingPayment ??= new SandboxPaymentRequest { Success = success };
+        PaymentDto payment;
+        try { payment = await Api.PostAsync<PaymentDto>($"api/payments/{order.Id}", pendingPayment); }
+        catch (ApiException ex)
+        {
+            if (ex.StatusCode != System.Net.HttpStatusCode.ServiceUnavailable && ex.StatusCode != System.Net.HttpStatusCode.GatewayTimeout)
+                pendingPayment = null;
+            throw;
+        }
+        pendingPayment = null;
+        order = await Api.GetAsync<OrderDto>($"api/orders/{order.Id}");
+        if (payment.Status == PaymentStatus.Success) message = $"Thanh toán thành công. Mã đơn hàng: {order.OrderCode}.";
+        else error = payment.FailureReason ?? "Thanh toán mô phỏng thất bại. Bạn có thể thử lại trên đơn hàng này.";
+    }
+}

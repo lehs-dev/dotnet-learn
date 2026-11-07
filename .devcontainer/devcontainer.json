@@ -1,0 +1,30 @@
+{
+	"name": "ElectroShop (.NET and SQL Server)",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "app",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"remoteUser": "vscode",
+	"postCreateCommand": "bash .devcontainer/mssql/postCreateCommand.sh",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-dotnettools.csdevkit",
+				"ms-mssql.mssql"
+			],
+			"settings": {
+				"mssql.connections": [
+					{
+						"authenticationType": "SqlLogin",
+						"database": "",
+						"emptyPasswordInput": false,
+						"password": "${localEnv:SA_PASSWORD}",
+						"profileName": "mssql-container",
+						"savePassword": false,
+						"server": "localhost,1433",
+						"user": "sa"
+					}
+				]
+			}
+		}
+	}
+}

@@ -1,0 +1,87 @@
+@inherits AdminPanelBase
+<div class="page-heading"><h2>Quản lý sản phẩm</h2><button class="button" disabled="@Busy" @onclick="NewProduct">+ Thêm sản phẩm</button></div>
+<PanelAlerts Error="@Error" Message="@Message" />
+<form class="filters" @onsubmit="() => Search(1)" @onsubmit:preventDefault>
+    <label class="form-field">Tìm sản phẩm<input @bind="query" placeholder="Tên sản phẩm" /></label><button class="button" disabled="@Busy" type="submit">Tìm kiếm</button>
+</form>
+@if (editingProduct)
+{
+    <section class="admin-edit"><h3>@(productId is null ? "Thêm sản phẩm" : "Chỉnh sửa sản phẩm")</h3>
+    <EditForm Model="product" OnValidSubmit="SaveProduct" FormName="admin-product">
+        <DataAnnotationsValidator /><ValidationSummary />
+        <div class="form-grid">
+            <label class="field">Tên sản phẩm<InputText @bind-Value="product.Name" maxlength="200" /><ValidationMessage For="() => product.Name" /></label>
+            <label class="field">Slug<InputText @bind-Value="product.Slug" maxlength="200" /><ValidationMessage For="() => product.Slug" /></label>
+            <label class="field">SKU<InputText @bind-Value="product.SKU" maxlength="50" /><ValidationMessage For="() => product.SKU" /></label>
+            <label class="field">Danh mục<InputSelect @bind-Value="product.CategoryId"><option value="0">Chọn danh mục</option>@foreach(var c in categories) { <option value="@c.Id">@c.Name @(!c.IsActive ? "(đã ẩn)" : "")</option> }</InputSelect><ValidationMessage For="() => product.CategoryId" /></label>
+            <label class="field">Giá (VND)<InputNumber @bind-Value="product.Price" min="0" step="1" /><ValidationMessage For="() => product.Price" /></label>
+            <label class="field">Số lượng tồn kho<InputNumber @bind-Value="product.StockQuantity" min="0" /><ValidationMessage For="() => product.StockQuantity" /></label>
+            <label class="field full-width">Đường dẫn ảnh<InputText @bind-Value="product.ImageUrl" maxlength="500" /><ValidationMessage For="() => product.ImageUrl" /></label>
+            <label class="field full-width">Mô tả<InputTextArea @bind-Value="product.Description" rows="3" maxlength="4000" /><ValidationMessage For="() => product.Description" /></label>
+            <label class="field"><span><InputCheckbox @bind-Value="product.IsActive" /> Hiển thị sản phẩm</span></label>
+        </div><div class="inline-actions"><button class="button" type="submit" disabled="@Busy">Lưu sản phẩm</button><button class="button secondary" type="button" disabled="@Busy" @onclick="() => editingProduct = false">Hủy</button></div>
+    </EditForm></section>
+}
+@if (products is not null)
+{
+    <p>@products.TotalCount sản phẩm</p>
+    <div class="table-wrap"><table class="data-table"><thead><tr><th>Sản phẩm</th><th>Danh mục</th><th>Giá</th><th>Tồn kho</th><th>Hiển thị</th><th>Thao tác</th></tr></thead><tbody>
+        @foreach(var p in products.Items)
+        {
+            <tr><td><strong>@p.Name</strong><small class="product-meta">@p.SKU</small></td><td>@p.CategoryName</td><td>@Display.Money(p.Price)</td><td>@p.StockQuantity</td><td>@(p.IsActive ? "Đang bán" : "Đã ẩn")</td><td><div class="inline-actions"><button class="button secondary small" disabled="@Busy" @onclick="() => EditProduct(p)">Sửa</button>@if(p.IsActive) { <button class="button danger small" disabled="@Busy" @onclick="() => HideProduct(p.Id)">Ẩn</button> }</div></td></tr>
+        }
+    </tbody></table></div>
+    @if(products.Items.Count == 0) { <div class="empty-state">Không có sản phẩm phù hợp.</div> }
+    <Pagination Page="products.Page" TotalPages="products.TotalPages" OnPage="Search" Disabled="Busy" />
+}
+<hr />
+<div class="page-heading"><h2>Danh mục sản phẩm</h2><button class="button secondary" disabled="@Busy" @onclick="NewCategory">+ Thêm danh mục</button></div>
+@if(editingCategory)
+{
+    <section class="admin-edit"><h3>@(categoryId is null ? "Thêm danh mục" : "Chỉnh sửa danh mục")</h3><EditForm Model="category" OnValidSubmit="SaveCategory" FormName="admin-category"><DataAnnotationsValidator /><ValidationSummary />
+        <div class="form-grid"><label class="field">Tên danh mục<InputText @bind-Value="category.Name" maxlength="100" /></label><label class="field">Slug<InputText @bind-Value="category.Slug" maxlength="100" /></label><label class="field full-width">Mô tả<InputTextArea @bind-Value="category.Description" rows="2" maxlength="1000" /></label><label class="field"><span><InputCheckbox @bind-Value="category.IsActive" /> Hiển thị danh mục</span></label></div>
+        <div class="inline-actions"><button type="submit" class="button" disabled="@Busy">Lưu danh mục</button><button class="button secondary" type="button" disabled="@Busy" @onclick="() => editingCategory = false">Hủy</button></div>
+    </EditForm></section>
+}
+<div class="table-wrap"><table class="data-table"><thead><tr><th>Danh mục</th><th>Slug</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody>
+    @foreach(var c in categories)
+    {
+        <tr><td>@c.Name</td><td>@c.Slug</td><td>@(c.IsActive ? "Hiển thị" : "Đã ẩn")</td><td><div class="inline-actions"><button class="button secondary small" disabled="@Busy" @onclick="() => EditCategory(c)">Sửa</button>@if(c.IsActive) { <button class="button danger small" disabled="@Busy" @onclick="() => HideCategory(c.Id)">Ẩn</button> }</div></td></tr>
+    }
+</tbody></table></div>
+@code {
+    private List<CategoryDto> categories = [];
+    private PagedResult<ProductDto>? products;
+    private string query = "";
+    private ProductRequest product = new();
+    private CategoryRequest category = new();
+    private int? productId, categoryId;
+    private bool editingProduct, editingCategory;
+    protected override Task OnInitializedAsync() => Run(async () => { await LoadCategories(); await LoadProducts(1); });
+    private async Task LoadCategories() => categories = await Api.GetAsync<List<CategoryDto>>("api/admin/categories");
+    private async Task LoadProducts(int page) => products = await Api.GetAsync<PagedResult<ProductDto>>($"api/admin/products?q={Uri.EscapeDataString(query)}&page={page}&pageSize=10");
+    private Task Search(int page) => Run(() => LoadProducts(page));
+    private void NewProduct() { product = new(); productId = null; editingProduct = true; Error = Message = null; }
+    private void EditProduct(ProductDto p)
+    {
+        productId = p.Id;
+        product = new ProductRequest { CategoryId = p.CategoryId, Name = p.Name, Slug = p.Slug, SKU = p.SKU, Description = p.Description, Price = p.Price, StockQuantity = p.StockQuantity, ImageUrl = p.ImageUrl, IsActive = p.IsActive, RowVersion = p.RowVersion };
+        editingProduct = true; Error = Message = null;
+    }
+    private Task SaveProduct() => Run(async () =>
+    {
+        if (productId is null) await Api.PostAsync<ProductDto>("api/admin/products", product);
+        else await Api.PutAsync<ProductDto>($"api/admin/products/{productId}", product);
+        editingProduct = false; await LoadProducts(products?.Page ?? 1);
+    }, "Đã lưu sản phẩm.");
+    private Task HideProduct(int id) => Run(async () => { await Api.DeleteAsync($"api/admin/products/{id}"); await LoadProducts(products?.Page ?? 1); }, "Đã ẩn sản phẩm. Lịch sử đơn hàng được giữ nguyên.");
+    private void NewCategory() { category = new(); categoryId = null; editingCategory = true; Error = Message = null; }
+    private void EditCategory(CategoryDto c) { categoryId = c.Id; category = new CategoryRequest { Name = c.Name, Slug = c.Slug, Description = c.Description, IsActive = c.IsActive }; editingCategory = true; Error = Message = null; }
+    private Task SaveCategory() => Run(async () =>
+    {
+        if (categoryId is null) await Api.PostAsync<CategoryDto>("api/admin/categories", category);
+        else await Api.PutAsync<CategoryDto>($"api/admin/categories/{categoryId}", category);
+        editingCategory = false; await LoadCategories(); await LoadProducts(products?.Page ?? 1);
+    }, "Đã lưu danh mục.");
+    private Task HideCategory(int id) => Run(async () => { await Api.DeleteAsync($"api/admin/categories/{id}"); await LoadCategories(); await LoadProducts(products?.Page ?? 1); }, "Đã ẩn danh mục.");
+}

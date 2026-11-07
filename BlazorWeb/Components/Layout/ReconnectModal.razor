@@ -1,0 +1,31 @@
+<script type="module" src="@Assets["Components/Layout/ReconnectModal.razor.js"]"></script>
+
+<dialog id="components-reconnect-modal" data-nosnippet>
+    <div class="components-reconnect-container">
+        <div class="components-rejoining-animation" aria-hidden="true">
+            <div></div>
+            <div></div>
+        </div>
+        <p class="components-reconnect-first-attempt-visible">
+            Đang kết nối lại với máy chủ…
+        </p>
+        <p class="components-reconnect-repeated-attempt-visible">
+            Chưa kết nối được. Thử lại sau <span id="components-seconds-to-next-attempt"></span> giây.
+        </p>
+        <p class="components-reconnect-failed-visible">
+            Không thể kết nối lại.<br />Vui lòng thử lại hoặc tải lại trang.
+        </p>
+        <button id="components-reconnect-button" class="components-reconnect-failed-visible">
+            Thử lại
+        </button>
+        <p class="components-pause-visible">
+            Máy chủ đã tạm dừng phiên làm việc.
+        </p>
+        <p class="components-resume-failed-visible">
+            Không thể tiếp tục phiên làm việc.<br />Vui lòng thử lại hoặc tải lại trang.
+        </p>
+        <button id="components-resume-button" class="components-pause-visible components-resume-failed-visible">
+            Tiếp tục
+        </button>
+    </div>
+</dialog>

@@ -1,0 +1,31 @@
+@model OrdersViewModel
+@{ ViewData["Title"] = "Đơn hàng của tôi"; }
+<div class="page-heading">
+<div>
+<span class="eyebrow">LỊCH SỬ MUA SẮM</span>
+<h1>Đơn hàng của tôi</h1>
+</div>
+<span>@Model.Orders.TotalCount đơn hàng</span>
+</div>
+@if (Model.Error is not null) { <div class="alert error" role="alert">@Model.Error</div> }
+else if (Model.Orders.Items.Count == 0) { <div class="empty-state">
+<h2>Bạn chưa có đơn hàng</h2>
+<p>Đơn hàng từ cả ba website đều xuất hiện tại đây.</p>
+<a class="button" href="/">Khám phá sản phẩm</a>
+</div> }
+else { @foreach (var order in Model.Orders.Items) { <article class="order-card">
+<div class="page-heading">
+<div>
+<h2>@order.OrderCode</h2>
+<p>@Display.Date(order.CreatedAt) · @Display.Money(order.TotalAmount)</p>
+</div>
+<div>
+<span class="badge">@Display.OrderStatus(order.OrderStatus)</span> <span class="badge">@Display.PaymentStatus(order.PaymentStatus)</span>
+</div>
+</div>
+<details>
+<summary>Xem chi tiết đơn hàng</summary>
+<partial name="_OrderDetails" model="order" />
+</details>@if (order.PaymentStatus != PaymentStatus.Success && order.OrderStatus != OrderStatus.Cancelled) { <a class="button secondary small" href="/checkout?orderId=@order.Id">Thử thanh toán lại</a> }</article>
+ } }
+@if (Model.Orders.TotalPages > 1) { <nav class="pagination" aria-label="Phân trang đơn hàng">@if (Model.Orders.Page > 1) { <a href="/orders?page=@(Model.Orders.Page-1)" class="button secondary small">← Trước</a> }<span>Trang @Model.Orders.Page / @Model.Orders.TotalPages</span>@if (Model.Orders.Page < Model.Orders.TotalPages) { <a href="/orders?page=@(Model.Orders.Page+1)" class="button secondary small">Sau →</a> }</nav> }

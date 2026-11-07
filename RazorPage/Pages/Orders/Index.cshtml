@@ -1,0 +1,5 @@
+@page "/orders"
+@model ElectroShop.RazorPages.Pages.Orders.IndexModel
+@{ViewData["Title"]="Đơn hàng của tôi";}
+<div class="page-heading"><div><span class="eyebrow">TÀI KHOẢN CỦA BẠN</span><h1>Lịch sử đơn hàng</h1></div><a class="button secondary" href="/">Tiếp tục mua sắm</a></div>
+@if(Model.Error is not null){<div class="alert error">@Model.Error</div>}else if(Model.Orders?.Items.Count>0){@foreach(var order in Model.Orders.Items){<partial name="_OrderCard" model="order"/>@if(order.PaymentStatus!=PaymentStatus.Success&&order.OrderStatus!=OrderStatus.Cancelled){<p><a class="button secondary small" href="/checkout?orderId=@order.Id">Tiếp tục thanh toán</a></p>}}<nav class="pagination">@for(var p=1;p<=Model.Orders.TotalPages;p++){<a class="button @(p==Model.Orders.Page?"":"secondary") small" href="/orders?page=@p">@p</a>}</nav>}else{<div class="empty-state"><h2>Bạn chưa có đơn hàng</h2><p>Các đơn hàng của bạn sẽ được lưu tại đây.</p><a class="button" href="/">Khám phá sản phẩm</a></div>}

@@ -1,0 +1,55 @@
+@model CatalogViewModel
+@{ ViewData["Title"] = "Công nghệ cho mỗi ngày"; }
+<section class="hero">
+<div class="hero-copy">
+<span class="eyebrow">KHÔNG GIAN CÔNG NGHỆ CỦA BẠN</span>
+<h1>Công nghệ tốt.<br />Trải nghiệm mỗi ngày.</h1>
+<p>Từ góc làm việc đến những phút giải trí. Khám phá thiết bị phù hợp, với mức giá rõ ràng.</p>
+<a class="button" href="#catalog">Khám phá sản phẩm <span aria-hidden="true">→</span>
+</a>
+<div class="hero-benefits">
+<span>✓ Sản phẩm chọn lọc</span>
+<span>✓ Giá minh bạch</span>
+<span>✓ Thanh toán sandbox</span>
+</div>
+</div>
+<div class="hero-art">
+<img src="/_content/ElectroShop.UiKit/images/laptop.svg" alt="Laptop và thiết bị công nghệ" />
+<span class="badge">Thiết bị cho mọi ý tưởng</span>
+</div>
+</section>
+
+<section id="catalog">
+<div class="page-heading">
+<div>
+<span class="eyebrow">KHÁM PHÁ ELECTROSHOP</span>
+<h2>Sản phẩm nổi bật</h2>
+</div>
+<span>@Model.Products.TotalCount sản phẩm</span>
+</div>
+<form class="filters" action="/" method="get">
+<label class="field">Tìm kiếm<input name="q" value="@Model.Q" placeholder="Tên sản phẩm..." />
+</label>
+<label class="field">Danh mục<select name="categoryId">
+<option value="">Tất cả danh mục</option>@foreach (var category in Model.Categories) { <option value="@category.Id" selected="@(category.Id == Model.CategoryId)">@category.Name</option> }</select>
+</label>
+<label class="field">Sắp xếp<select name="sort">
+<option value="">Mới nhất</option>
+<option value="price-asc" selected="@(Model.Sort == "price-asc")">Giá tăng dần</option>
+<option value="price-desc" selected="@(Model.Sort == "price-desc")">Giá giảm dần</option>
+</select>
+</label>
+<button class="button">Áp dụng</button>
+<a class="button secondary" href="/">Đặt lại</a>
+</form>
+
+@if (Model.Error is not null) { <div class="alert error" role="alert">@Model.Error</div> }
+else if (Model.Products.Items.Count == 0) { <div class="empty-state">
+<h3>Chưa tìm thấy sản phẩm</h3>
+<p>Thử từ khóa hoặc danh mục khác để khám phá thêm.</p>
+<a href="/" class="button secondary">Xem tất cả</a>
+</div> }
+else { <div class="product-grid">@foreach (var product in Model.Products.Items) { <partial name="_ProductCard" model="product" /> }</div> }
+@if (Model.Products.TotalPages > 1) { <nav class="pagination" aria-label="Phân trang sản phẩm">@if (Model.Products.Page > 1) { <a class="button secondary small" asp-action="Index" asp-route-q="@Model.Q" asp-route-categoryId="@Model.CategoryId" asp-route-sort="@Model.Sort" asp-route-page="@(Model.Products.Page-1)">← Trước</a> }<span>Trang @Model.Products.Page / @Model.Products.TotalPages</span>@if (Model.Products.Page < Model.Products.TotalPages) { <a class="button secondary small" asp-action="Index" asp-route-q="@Model.Q" asp-route-categoryId="@Model.CategoryId" asp-route-sort="@Model.Sort" asp-route-page="@(Model.Products.Page+1)">Sau →</a> }</nav> }
+</section>
+

@@ -1,0 +1,52 @@
+@page "/products/{Slug}"
+@inject ShopApiClient Api
+@inject AuthenticationStateProvider Auth
+@inject NavigationManager Navigation
+<PageTitle>@(product?.Name ?? "Chi tiết sản phẩm") | ElectroShop</PageTitle>
+<div class="breadcrumb"><a href="/">Trang chủ</a> / @(product?.CategoryName ?? "Sản phẩm")</div>
+@if (error is not null) { <div class="alert error" role="alert">@error</div> }
+@if (message is not null) { <div class="alert success" role="status">@message <a href="/cart">Xem giỏ hàng →</a></div> }
+@if (loading) { <p class="loading">Đang tải sản phẩm…</p> }
+else if (product is not null)
+{
+    <section class="detail-grid">
+        <div class="detail-image"><img src="@product.ImageUrl" alt="@product.Name" /></div>
+        <div><span class="product-category">@product.CategoryName</span><h1>@product.Name</h1><p class="product-meta">Mã sản phẩm: @product.SKU</p><p class="product-price">@Display.Money(product.Price)</p><p>@product.Description</p><p><span class="badge">@(product.StockQuantity > 0 ? $"Còn {product.StockQuantity} sản phẩm" : "Hết hàng")</span></p>
+            <label class="field">Số lượng<input class="quantity-input" type="number" min="1" max="@product.StockQuantity" @bind="quantity" /></label>
+            <button class="button" disabled="@(busy || product.StockQuantity == 0)" @onclick="() => AddToCart(product.Id)">Thêm vào giỏ hàng</button>
+        </div>
+    </section>
+    <div class="page-heading"><h2>Sản phẩm liên quan</h2><a href="/?categoryId=@product.CategoryId">Xem danh mục →</a></div>
+    <div class="product-grid">@foreach(var p in related) { <ProductCard Product="p" OnAdd="AddRelated" Disabled="busy" /> }</div>
+}
+@code {
+    [Parameter] public string Slug { get; set; } = "";
+    private ProductDto? product;
+    private List<ProductDto> related = [];
+    private int quantity = 1;
+    private string? error, message;
+    private bool loading, busy;
+    protected override async Task OnParametersSetAsync()
+    {
+        loading = true; product = null; error = message = null; quantity = 1;
+        try
+        {
+            product = await Api.GetAsync<ProductDto>($"api/products/{Uri.EscapeDataString(Slug)}");
+            related = (await Api.GetAsync<PagedResult<ProductDto>>($"api/products?categoryId={product.CategoryId}&pageSize=5")).Items.Where(x => x.Id != product.Id).Take(4).ToList();
+        }
+        catch (ApiException ex) { error = ex.Message; }
+        finally { loading = false; }
+    }
+    private Task AddRelated(int id) => Add(id, 1);
+    private Task AddToCart(int id) => Add(id, quantity);
+    private async Task Add(int id, int count)
+    {
+        if ((await Auth.GetAuthenticationStateAsync()).User.Identity?.IsAuthenticated != true) { Navigation.NavigateTo("/?login=1", true); return; }
+        error = message = null;
+        if (count < 1 || (id == product?.Id && count > product.StockQuantity)) { error = "Số lượng phải từ 1 và không vượt quá tồn kho."; return; }
+        busy = true;
+        try { await Api.PostAsync("api/cart/items", new CartQuantityRequest { ProductId = id, Quantity = count }); message = "Đã thêm sản phẩm vào giỏ hàng."; }
+        catch(ApiException ex) { error = ex.Message; }
+        finally { busy = false; }
+    }
+}

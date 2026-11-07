@@ -1,0 +1,38 @@
+@model ProductViewModel
+@{ ViewData["Title"] = Model.Product.Name; var product = Model.Product; }
+<nav class="breadcrumb">
+<a href="/">Trang chủ</a>
+<span>/</span>
+<a href="/?categoryId=@product.CategoryId">@product.CategoryName</a>
+<span>/</span>
+<span>@product.Name</span>
+</nav>
+<section class="detail-grid">
+<div class="detail-image">
+<img src="@product.ImageUrl" alt="@product.Name" />
+</div>
+<div class="product-detail">
+<span class="eyebrow">@product.CategoryName</span>
+<h1>@product.Name</h1>
+<p class="product-meta">Mã sản phẩm: @product.SKU</p>
+<div class="product-price">@Display.Money(product.Price)</div>
+<p>@product.Description</p>
+<p>
+<span class="badge">@(product.StockQuantity > 0 ? $"Còn {product.StockQuantity} sản phẩm" : "Hết hàng")</span>
+</p>
+<form action="/cart/add" method="post" class="filters">@Html.AntiForgeryToken()<input type="hidden" name="ProductId" value="@product.Id" />
+<input type="hidden" name="returnUrl" value="/products/@product.Slug" />
+<label class="field">Số lượng<input class="quantity-input" type="number" name="Quantity" value="1" min="1" max="@Math.Min(999, product.StockQuantity)" required disabled="@(product.StockQuantity <= 0)" />
+</label>
+<button class="button" disabled="@(product.StockQuantity <= 0)">Thêm vào giỏ hàng</button>
+</form>
+
+<p class="product-meta">Thanh toán sandbox an toàn cho việc học tập. Không thu thập thông tin thẻ.</p>
+</div>
+</section>
+
+@if (Model.Related.Count > 0) { <div class="page-heading">
+<h2>Có thể bạn quan tâm</h2>
+<a href="/?categoryId=@product.CategoryId">Xem cùng danh mục →</a>
+</div>
+<div class="product-grid">@foreach (var item in Model.Related) { <partial name="_ProductCard" model="item" /> }</div> }

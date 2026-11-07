@@ -1,0 +1,41 @@
+@inherits AdminPanelBase
+<h2>Quản lý đơn hàng</h2>
+<PanelAlerts Error="@Error" Message="@Message" />
+<form class="filters" @onsubmit="() => Search(1)" @onsubmit:preventDefault>
+    <label class="form-field">Tìm đơn<input @bind="query" placeholder="Mã đơn hoặc khách hàng" /></label>
+    <label class="form-field">Trạng thái<select @bind="status"><option value="">Tất cả trạng thái</option>@foreach(var s in Enum.GetValues<OrderStatus>()) { <option value="@s">@Display.Order(s)</option> }</select></label>
+    <button class="button" disabled="@Busy" type="submit">Tìm kiếm</button>
+</form>
+@if (orders is not null)
+{
+    <p>@orders.TotalCount đơn hàng</p>
+    @if (orders.Items.Count == 0) { <div class="empty-state">Không có đơn hàng phù hợp.</div> }
+    @foreach(var order in orders.Items)
+    {
+        <div class="admin-panel"><p><strong>Khách hàng:</strong> @order.CustomerName</p><OrderDetails Order="order">
+            <div class="inline-actions"><label>Trạng thái <select @bind="selectedStatuses[order.Id]">@foreach(var s in Allowed(order)) { <option value="@s">@Display.Order(s)</option> }</select></label><button class="button small" disabled="@Busy" @onclick="() => Save(order.Id)">Cập nhật trạng thái</button></div>
+        </OrderDetails></div>
+    }
+    <Pagination Page="orders.Page" TotalPages="orders.TotalPages" OnPage="Search" Disabled="Busy" />
+}
+@code {
+    private string query = "", status = "";
+    private PagedResult<OrderDto>? orders;
+    private Dictionary<int, OrderStatus> selectedStatuses = [];
+    protected override Task OnInitializedAsync() => Search(1);
+    private Task Search(int page) => Run(() => Load(page));
+    private async Task Load(int page)
+    {
+        orders = await Api.GetAsync<PagedResult<OrderDto>>($"api/admin/orders?q={Uri.EscapeDataString(query)}&status={status}&page={page}&pageSize=10");
+        selectedStatuses = orders.Items.ToDictionary(x => x.Id, x => x.OrderStatus);
+    }
+    private Task Save(int id) => Run(async () => { await Api.PutAsync<OrderDto>($"api/admin/orders/{id}/status", new OrderStatusRequest { Status = selectedStatuses[id] }); await Load(orders?.Page ?? 1); }, "Đã cập nhật trạng thái đơn hàng.");
+    private static IEnumerable<OrderStatus> Allowed(OrderDto order)
+    {
+        yield return order.OrderStatus;
+        if (order.OrderStatus == OrderStatus.Pending && order.PaymentStatus == PaymentStatus.Success) yield return OrderStatus.Confirmed;
+        if (order.OrderStatus == OrderStatus.Pending && order.PaymentStatus != PaymentStatus.Success) yield return OrderStatus.Cancelled;
+        if (order.OrderStatus == OrderStatus.Confirmed) yield return OrderStatus.Shipping;
+        if (order.OrderStatus == OrderStatus.Shipping) yield return OrderStatus.Completed;
+    }
+}

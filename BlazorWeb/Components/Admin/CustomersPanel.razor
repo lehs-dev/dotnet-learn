@@ -1,0 +1,46 @@
+@inherits AdminPanelBase
+<h2>Quản lý khách hàng</h2>
+<PanelAlerts Error="@Error" Message="@Message" />
+<form class="filters" @onsubmit="() => Search(1)" @onsubmit:preventDefault><label class="form-field">Tìm khách hàng<input @bind="query" placeholder="Họ tên hoặc email" /></label><button class="button" disabled="@Busy" type="submit">Tìm kiếm</button></form>
+@if(selectedCustomer is not null)
+{
+    <section class="admin-edit"><div class="page-heading"><h3>Hồ sơ @selectedCustomer.FullName</h3><button class="button secondary small" @onclick="CloseProfile">Đóng</button></div>
+    <p>@selectedCustomer.Email</p>
+    <EditForm Model="profile" OnValidSubmit="SaveProfile" FormName="customer-profile"><DataAnnotationsValidator /><ValidationSummary /><div class="form-grid"><label class="field">Họ tên<InputText @bind-Value="profile.FullName" maxlength="100" /><ValidationMessage For="() => profile.FullName" /></label><label class="field">Số điện thoại<InputText @bind-Value="profile.PhoneNumber" maxlength="20" /><ValidationMessage For="() => profile.PhoneNumber" /></label></div><button class="button" disabled="@Busy" type="submit">Lưu hồ sơ</button></EditForm>
+    @if(history is not null)
+    {
+        <h3>Lịch sử đơn hàng</h3>
+        @if(history.Count == 0) { <p>Khách hàng chưa có đơn hàng.</p> }
+        @foreach(var order in history) { <OrderDetails Order="order" /> }
+    }
+    </section>
+}
+@if(customers is not null)
+{
+    <p>@customers.TotalCount khách hàng</p>
+    <div class="table-wrap"><table class="data-table"><thead><tr><th>Khách hàng</th><th>Liên hệ</th><th>Ngày tạo</th><th>Số đơn</th><th>Tổng chi tiêu</th><th></th></tr></thead><tbody>
+    @foreach(var c in customers.Items)
+    {
+        <tr><td><strong>@c.FullName</strong><small class="product-meta">@(c.IsActive ? "Hoạt động" : "Đã khóa")</small></td><td>@c.Email<br />@c.PhoneNumber</td><td>@Display.Date(c.CreatedAt)</td><td>@c.OrderCount</td><td>@Display.Money(c.TotalSpent)</td><td><button class="button secondary small" disabled="@Busy" @onclick="() => OpenProfile(c)">Hồ sơ & đơn hàng</button></td></tr>
+    }
+    </tbody></table></div>
+    @if(customers.Items.Count == 0) { <div class="empty-state">Không có khách hàng phù hợp.</div> }
+    <Pagination Page="customers.Page" TotalPages="customers.TotalPages" OnPage="Search" Disabled="Busy" />
+}
+@code {
+    private string query = "";
+    private PagedResult<CustomerDto>? customers;
+    private CustomerDto? selectedCustomer;
+    private CustomerProfileRequest profile = new();
+    private List<OrderDto>? history;
+    protected override Task OnInitializedAsync() => Search(1);
+    private async Task Load(int page) => customers = await Api.GetAsync<PagedResult<CustomerDto>>($"api/admin/customers?q={Uri.EscapeDataString(query)}&page={page}&pageSize=10");
+    private Task Search(int page) => Run(() => Load(page));
+    private Task OpenProfile(CustomerDto c) => Run(async () =>
+    {
+        selectedCustomer = c; profile = new CustomerProfileRequest { FullName = c.FullName, PhoneNumber = c.PhoneNumber }; history = null;
+        history = await Api.GetAsync<List<OrderDto>>($"api/admin/customers/{Uri.EscapeDataString(c.Id)}/orders");
+    });
+    private void CloseProfile() { selectedCustomer = null; history = null; }
+    private Task SaveProfile() => Run(async () => { await Api.PutAsync($"api/admin/customers/{Uri.EscapeDataString(selectedCustomer!.Id)}", profile); await Load(customers?.Page ?? 1); selectedCustomer = selectedCustomer with { FullName = profile.FullName, PhoneNumber = profile.PhoneNumber }; }, "Đã cập nhật hồ sơ khách hàng.");
+}

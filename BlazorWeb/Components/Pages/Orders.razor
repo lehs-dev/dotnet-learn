@@ -1,0 +1,32 @@
+@page "/orders"
+@attribute [Authorize]
+@inject ShopApiClient Api
+<PageTitle>Đơn hàng của tôi | ElectroShop</PageTitle>
+<div class="page-heading"><div><span class="eyebrow">TÀI KHOẢN CỦA BẠN</span><h1>Đơn hàng của tôi</h1></div><a href="/">Tiếp tục mua sắm →</a></div>
+@if (error is not null) { <div class="alert error" role="alert">@error</div> }
+@if (loading) { <p class="loading">Đang tải đơn hàng…</p> }
+else if (orders is not null && orders.Items.Count == 0) { <div class="empty-state"><h2>Chưa có đơn hàng</h2><p>Đơn hàng của bạn sẽ xuất hiện tại đây sau khi đặt hàng.</p><a class="button" href="/">Khám phá sản phẩm</a></div> }
+else if (orders is not null)
+{
+    <p>@orders.TotalCount đơn hàng</p>
+    @foreach (var order in orders.Items)
+    {
+        <OrderDetails Order="order">
+            @if (order.PaymentStatus != PaymentStatus.Success && order.OrderStatus != OrderStatus.Cancelled) { <a class="button small" href="/checkout?orderId=@order.Id">Thử lại thanh toán</a> }
+        </OrderDetails>
+    }
+    <Pagination Page="orders.Page" TotalPages="orders.TotalPages" OnPage="Load" Disabled="loading" />
+}
+@code {
+    private PagedResult<OrderDto>? orders;
+    private string? error;
+    private bool loading = true;
+    protected override Task OnInitializedAsync() => Load(1);
+    private async Task Load(int page)
+    {
+        loading = true; error = null;
+        try { orders = await Api.GetAsync<PagedResult<OrderDto>>($"api/orders?page={page}&pageSize=10"); }
+        catch(ApiException ex) { error = ex.Message; }
+        finally { loading = false; }
+    }
+}

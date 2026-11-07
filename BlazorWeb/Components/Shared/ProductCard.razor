@@ -1,0 +1,15 @@
+<article class="product-card">
+    <a class="product-image" href="/products/@Product.Slug"><img src="@Product.ImageUrl" alt="@Product.Name" loading="lazy" /></a>
+    <div class="product-info">
+        <span class="product-category">@Product.CategoryName</span>
+        <h3 class="product-title"><a href="/products/@Product.Slug">@Product.Name</a></h3>
+        <div class="product-price">@Display.Money(Product.Price)</div>
+        <p class="product-meta">@(Product.StockQuantity > 0 ? $"Còn hàng · {Product.StockQuantity} sản phẩm" : "Hết hàng")</p>
+        <div class="card-actions"><a class="button secondary small" href="/products/@Product.Slug">Chi tiết</a><button class="button small" disabled="@(Disabled || Product.StockQuantity == 0)" @onclick="() => OnAdd.InvokeAsync(Product.Id)">Thêm vào giỏ</button></div>
+    </div>
+</article>
+@code {
+    [Parameter, EditorRequired] public ProductDto Product { get; set; } = default!;
+    [Parameter] public EventCallback<int> OnAdd { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+}
