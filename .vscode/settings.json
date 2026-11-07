@@ -1,0 +1,6 @@
+{
+  "remote.autoForwardPorts": false,
+  "remote.restoreForwardedPorts": false,
+  "dotnet.backgroundAnalysis.analyzerDiagnosticsScope": "openFiles",
+  "dotnet.backgroundAnalysis.compilerDiagnosticsScope": "openFiles"
+}

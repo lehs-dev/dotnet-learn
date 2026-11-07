@@ -6,13 +6,25 @@
 	"runArgs": [
 		"--network=host"
 	],
-	"postCreateCommand": "dotnet tool restore && dotnet restore",
+	"containerEnv": {
+		"DOTNET_GCServer": "0",
+		"DOTNET_CLI_DO_NOT_USE_MSBUILD_SERVER": "1",
+		"MSBUILDDISABLENODEREUSE": "1"
+	},
+	"postCreateCommand": "dotnet tool restore && dotnet restore -nr:false",
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"ms-dotnettools.csdevkit",
+				"ms-dotnettools.csharp",
 				"qwtel.sqlite-viewer"
-			]
+			],
+			"settings": {
+				"remote.autoForwardPorts": false,
+				"remote.restoreForwardedPorts": false,
+				"dotnet.backgroundAnalysis.analyzerDiagnosticsScope": "openFiles",
+				"dotnet.backgroundAnalysis.compilerDiagnosticsScope": "openFiles",
+				"csharp.format.enable": true
+			}
 		}
 	}
 }
