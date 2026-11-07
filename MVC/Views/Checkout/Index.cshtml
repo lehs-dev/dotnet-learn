@@ -1,79 +1,132 @@
 @model CheckoutViewModel
-@{ ViewData["Title"] = "Thanh toán sandbox"; }
+@{
+    ViewData["Title"] = "Thanh toán sandbox";
+}
 <div class="page-heading">
-<div>
-<span class="eyebrow">BƯỚC CUỐI CÙNG</span>
-<h1>Thanh toán sandbox</h1>
+    <div>
+        <span class="eyebrow">BƯỚC CUỐI CÙNG</span>
+        <h1>Thanh toán sandbox</h1>
+    </div>
+    <a href="/cart">← Về giỏ hàng</a>
 </div>
-<a href="/cart">← Về giỏ hàng</a>
+<div class="alert">
+    Đây là thanh toán mô phỏng phục vụ học tập. Không chuyển tiền thật và không cần thông tin thẻ.
 </div>
-<div class="alert">Đây là thanh toán mô phỏng phục vụ học tập. Không chuyển tiền thật và không cần thông tin thẻ.</div>
-@if (Model.Error is not null) { <div class="alert error" role="alert">@Model.Error</div> }
-@if (Model.Order is { } order) {
+@if (Model.Error is not null)
+{
+    <div class="alert error" role="alert">@Model.Error</div>
+}
+@if (Model.Order is { } order)
+{
     <section class="order-card">
-<div class="page-heading">
-<div>
-<h2>Đơn hàng @order.OrderCode</h2>
-<p>@Display.Date(order.CreatedAt)</p>
-</div>
-<div>
-<span class="badge">@Display.OrderStatus(order.OrderStatus)</span> <span class="badge">@Display.PaymentStatus(order.PaymentStatus)</span>
-</div>
-</div>
-<partial name="_OrderDetails" model="order" />
-    @if (order.PaymentStatus == PaymentStatus.Success) { <div class="alert success">Đơn hàng đã thanh toán thành công. Tồn kho được cập nhật và sản phẩm đã mua được xóa khỏi giỏ.</div>
-<a class="button" href="/orders">Xem lịch sử đơn hàng</a> }
-    else if (order.OrderStatus != OrderStatus.Cancelled) { <p>Bạn có thể thanh toán lại trên chính đơn hàng này. Mỗi lần thử có mã riêng để chống xử lý trùng.</p>
-<form action="/checkout/retry" method="post" class="filters">@Html.AntiForgeryToken()<input type="hidden" name="orderId" value="@order.Id" />
-<input type="hidden" name="attemptKey" value="@Model.AttemptKey" />
-<button class="button" name="success" value="true">Mô phỏng thành công</button>
-<button class="button secondary" name="success" value="false">Mô phỏng thất bại</button>
-</form>
- }
-    else { <p>Đơn hàng đã hủy và không thể thanh toán.</p> }
+        <div class="page-heading">
+            <div>
+                <h2>Đơn hàng @order.OrderCode</h2>
+                <p>@Display.Date(order.CreatedAt)</p>
+            </div>
+            <div>
+                <span class="badge">@Display.OrderStatus(order.OrderStatus)</span>
+                <span class="badge">@Display.PaymentStatus(order.PaymentStatus)</span>
+            </div>
+        </div>
+        <partial name="_OrderDetails" model="order" />
+        @if (order.PaymentStatus == PaymentStatus.Success)
+        {
+            <div class="alert success">
+                Đơn hàng đã thanh toán thành công. Tồn kho được cập nhật và sản phẩm đã mua được xóa khỏi giỏ.
+            </div>
+            <a class="button" href="/orders">Xem lịch sử đơn hàng</a>
+        }
+        else if (order.OrderStatus != OrderStatus.Cancelled)
+        {
+            <p>
+                Bạn có thể thanh toán lại trên chính đơn hàng này. Mỗi lần thử có mã riêng để chống xử lý trùng.
+            </p>
+            <form action="/checkout/retry" method="post" class="filters">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="orderId" value="@order.Id" />
+                <input type="hidden" name="attemptKey" value="@Model.AttemptKey" />
+                <button class="button" name="success" value="true">Mô phỏng thành công</button>
+                <button class="button secondary" name="success" value="false">Mô phỏng thất bại</button>
+            </form>
+        }
+        else
+        {
+            <p>Đơn hàng đã hủy và không thể thanh toán.</p>
+        }
     </section>
-
-} else if (Model.Cart.Items.Count == 0) { <div class="empty-state">
-<h2>Chưa có sản phẩm để thanh toán</h2>
-<a class="button" href="/">Tiếp tục mua sắm</a>
-</div> }
-else {
-<form action="/checkout" method="post">@Html.AntiForgeryToken()<input asp-for="Input.CheckoutKey" type="hidden" />
-<input type="hidden" name="attemptKey" value="@Model.AttemptKey" />
-<div class="cart-layout">
-<section class="summary-card">
-<h2>Thông tin giao hàng</h2>
-<div asp-validation-summary="All" class="alert error">
-</div>
-<div class="form-grid">
-<label class="field full-width">Họ và tên người nhận<input asp-for="Input.ReceiverName" autocomplete="name" required maxlength="100" />
-</label>
-<label class="field full-width">Số điện thoại<input asp-for="Input.ReceiverPhone" type="tel" autocomplete="tel" required maxlength="20" />
-</label>
-<label class="field full-width">Địa chỉ giao hàng<textarea asp-for="Input.ShippingAddress" autocomplete="street-address" required minlength="10" maxlength="500" rows="3">
-</textarea>
-</label>
-<label class="field full-width">Ghi chú (tùy chọn)<textarea asp-for="Input.Note" maxlength="1000" rows="3">
-</textarea>
-</label>
-</div>
-</section>
-
-<aside class="summary-card">
-<h2>Đơn hàng của bạn</h2>@foreach (var item in Model.Cart.Items) { <p>@item.Name × @item.Quantity <strong>@Display.Money(item.LineTotal)</strong>
-</p> }<div class="summary-total">
-<span>Tổng thanh toán</span>
-<strong>@Display.Money(Model.Cart.TotalAmount)</strong>
-</div>
-<h3>Chọn kết quả mô phỏng</h3>
-<label class="radio-option">
-<input type="radio" name="success" value="true" checked /> Thanh toán thành công</label>
-<label class="radio-option">
-<input type="radio" name="success" value="false" /> Thanh toán thất bại</label>
-<p class="product-meta">Giá và tồn kho được API kiểm tra lại khi thanh toán.</p>
-<button class="button full-width">Tạo đơn và thanh toán</button>
-</aside>
-</div>
-</form>
-
+}
+else if (Model.Cart.Items.Count == 0)
+{
+    <div class="empty-state">
+        <h2>Chưa có sản phẩm để thanh toán</h2>
+        <a class="button" href="/">Tiếp tục mua sắm</a>
+    </div>
+}
+else
+{
+    <form action="/checkout" method="post">
+        @Html.AntiForgeryToken()
+        <input asp-for="Input.CheckoutKey" type="hidden" />
+        <input type="hidden" name="attemptKey" value="@Model.AttemptKey" />
+        <div class="cart-layout">
+            <section class="summary-card">
+                <h2>Thông tin giao hàng</h2>
+                <div asp-validation-summary="All" class="alert error"></div>
+                <div class="form-grid">
+                    <label class="field full-width">
+                        Họ và tên người nhận
+                        <input asp-for="Input.ReceiverName" autocomplete="name" required maxlength="100" />
+                    </label>
+                    <label class="field full-width">
+                        Số điện thoại
+                        <input asp-for="Input.ReceiverPhone" type="tel" autocomplete="tel" required maxlength="20" />
+                    </label>
+                    <label class="field full-width">
+                        Địa chỉ giao hàng
+                        <textarea
+                            asp-for="Input.ShippingAddress"
+                            autocomplete="street-address"
+                            required
+                            minlength="10"
+                            maxlength="500"
+                            rows="3">
+                        </textarea>
+                    </label>
+                    <label class="field full-width">
+                        Ghi chú (tùy chọn)
+                        <textarea asp-for="Input.Note" maxlength="1000" rows="3">
+                        </textarea>
+                    </label>
+                </div>
+            </section>
+            <aside class="summary-card">
+                <h2>Đơn hàng của bạn</h2>
+                @foreach (var item in Model.Cart.Items)
+                {
+                    <p class="summary-line">
+                        @item.Name
+                        ×
+                        @item.Quantity
+                        <strong>@Display.Money(item.LineTotal)</strong>
+                    </p>
+                }
+                <div class="summary-total">
+                    <span>Tổng thanh toán</span>
+                    <strong>@Display.Money(Model.Cart.TotalAmount)</strong>
+                </div>
+                <h3>Chọn kết quả mô phỏng</h3>
+                <label class="radio-option">
+                    <input type="radio" name="success" value="true" checked />
+                    Thanh toán thành công
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="success" value="false" />
+                    Thanh toán thất bại
+                </label>
+                <p class="product-meta">Giá và tồn kho được API kiểm tra lại khi thanh toán.</p>
+                <button class="button full-width">Tạo đơn và thanh toán</button>
+            </aside>
+        </div>
+    </form>
 }

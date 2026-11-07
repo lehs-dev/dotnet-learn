@@ -2,63 +2,181 @@
 @inject ShopApiClient Api
 @inject AuthenticationStateProvider Auth
 @inject NavigationManager Navigation
+
 <PageTitle>ElectroShop | Công nghệ cho mỗi ngày</PageTitle>
 <section class="hero">
-    <div class="hero-copy"><span class="eyebrow">KHÔNG GIAN CÔNG NGHỆ CỦA BẠN</span><h1>Công nghệ tốt.<br />Trải nghiệm mỗi ngày.</h1><p>Từ góc làm việc đến những phút giải trí. Khám phá thiết bị phù hợp, với mức giá rõ ràng.</p><a class="button" href="#catalog">Khám phá sản phẩm →</a><div class="hero-benefits"><span>✓ Sản phẩm chọn lọc</span><span>✓ Giá minh bạch</span><span>✓ Thanh toán sandbox</span></div></div>
-    <div class="hero-art"><img src="/_content/ElectroShop.UiKit/images/hero-banner.svg" alt="Laptop và thiết bị công nghệ" /><span class="badge">Thiết bị cho mọi ý tưởng</span></div>
+    <div class="hero-copy">
+        <span class="eyebrow">KHÔNG GIAN CÔNG NGHỆ CỦA BẠN</span>
+        <h1>Công nghệ tốt.<br />Trải nghiệm mỗi ngày.</h1>
+        <p>Từ góc làm việc đến những phút giải trí. Khám phá thiết bị phù hợp, với mức giá rõ ràng.</p>
+        <a class="button" href="#catalog">Khám phá sản phẩm →</a>
+        <div class="hero-benefits">
+            <span>✓ Sản phẩm chọn lọc</span>
+            <span>✓ Giá minh bạch</span>
+            <span>✓ Thanh toán sandbox</span>
+        </div>
+    </div>
+    <div class="hero-art">
+        <img src="/_content/ElectroShop.UiKit/images/hero-banner.svg" alt="Laptop và thiết bị công nghệ" />
+        <span class="badge">Thiết bị cho mọi ý tưởng</span>
+    </div>
 </section>
 <section id="catalog">
-    <div class="page-heading"><div><span class="eyebrow">KHÁM PHÁ ELECTROSHOP</span><h2>Sản phẩm nổi bật</h2></div><span>@(products?.TotalCount ?? 0) sản phẩm</span></div>
-    @if (error is not null) { <div class="alert error" role="alert">@error</div> }
-    @if (message is not null) { <div class="alert success" role="status">@message <a href="/cart">Xem giỏ hàng →</a></div> }
+    <div class="page-heading">
+        <div>
+            <span class="eyebrow">KHÁM PHÁ ELECTROSHOP</span>
+            <h2>Sản phẩm nổi bật</h2>
+        </div>
+        <span>@(products?.TotalCount ?? 0) sản phẩm</span>
+    </div>
+    @if (error is not null)
+    {
+        <div class="alert error" role="alert">@error</div>
+    }
+    @if (message is not null)
+    {
+        <div class="alert success" role="status">
+            @message
+            <a href="/cart">Xem giỏ hàng →</a>
+        </div>
+    }
     <form class="filters" @onsubmit="ApplyFilters" @onsubmit:preventDefault>
-        <label class="form-field">Tìm kiếm<input @bind="search" placeholder="Tên sản phẩm…" /></label>
-        <label class="form-field">Danh mục<select @bind="category"><option value="">Tất cả danh mục</option>@foreach(var c in categories) { <option value="@c.Id">@c.Name</option> }</select></label>
-        <label class="form-field">Sắp xếp<select @bind="sort"><option value="">Mới nhất</option><option value="price-asc">Giá tăng dần</option><option value="price-desc">Giá giảm dần</option></select></label>
+        <label class="form-field">
+            Tìm kiếm
+            <input @bind="search" placeholder="Tên sản phẩm…" />
+        </label>
+        <label class="form-field">
+            Danh mục
+            <select @bind="category">
+                <option value="">Tất cả danh mục</option>
+                @foreach (var c in categories)
+                {
+                    <option value="@c.Id">@c.Name</option>
+                }
+            </select>
+        </label>
+        <label class="form-field">
+            Sắp xếp
+            <select @bind="sort">
+                <option value="">Mới nhất</option>
+                <option value="price-asc">Giá tăng dần</option>
+                <option value="price-desc">Giá giảm dần</option>
+            </select>
+        </label>
         <button class="button" disabled="@busy" type="submit">Áp dụng</button>
     </form>
-    @if (loading) { <p class="loading">Đang tải sản phẩm…</p> }
-    else if (products is not null && products.Items.Count == 0) { <div class="empty-state"><h3>Chưa tìm thấy sản phẩm</h3><p>Hãy thử từ khóa hoặc danh mục khác.</p></div> }
+    @if (loading)
+    {
+        <p class="loading">Đang tải sản phẩm…</p>
+    }
+    else if (products is not null && products.Items.Count == 0)
+    {
+        <div class="empty-state">
+            <h3>Chưa tìm thấy sản phẩm</h3>
+            <p>Hãy thử từ khóa hoặc danh mục khác.</p>
+        </div>
+    }
     else if (products is not null)
     {
-        <div class="product-grid">@foreach(var product in products.Items) { <ProductCard Product="product" OnAdd="AddToCart" Disabled="busy" /> }</div>
-        <Pagination Page="products.Page" TotalPages="products.TotalPages" OnPage="GoToPage" Disabled="busy" />
+        <div class="product-grid">
+            @foreach (var product in products.Items)
+            {
+                <ProductCard Product="product" OnAdd="AddToCart" Disabled="busy" />
+            }
+        </div>
+        <Pagination
+            Page="products.Page"
+            TotalPages="products.TotalPages"
+            OnPage="GoToPage"
+            Disabled="busy" />
     }
 </section>
-@code {
-    [SupplyParameterFromQuery(Name = "q")] public string? Query { get; set; }
-    [SupplyParameterFromQuery(Name = "categoryId")] public int? CategoryId { get; set; }
-    [SupplyParameterFromQuery(Name = "sort")] public string? Sort { get; set; }
-    [SupplyParameterFromQuery(Name = "page")] public int? CurrentPage { get; set; }
-    private string search = "", category = "", sort = "";
+
+@code
+{
+    [SupplyParameterFromQuery(Name = "q")]
+    public string? Query { get; set; }
+
+    [SupplyParameterFromQuery(Name = "categoryId")]
+    public int? CategoryId { get; set; }
+
+    [SupplyParameterFromQuery(Name = "sort")]
+    public string? Sort { get; set; }
+
+    [SupplyParameterFromQuery(Name = "page")]
+    public int? CurrentPage { get; set; }
+    private string search = "",
+        category = "",
+        sort = "";
     private List<CategoryDto> categories = [];
     private PagedResult<ProductDto>? products;
-    private string? error, message;
-    private bool loading, busy;
+    private string? error,
+        message;
+    private bool loading,
+        busy;
+
     protected override async Task OnParametersSetAsync()
     {
-        search = Query ?? ""; category = CategoryId?.ToString() ?? ""; sort = Sort ?? "";
+        search = Query ?? "";
+        category = CategoryId?.ToString() ?? "";
+        sort = Sort ?? "";
         await Load();
     }
+
     private async Task Load()
     {
-        loading = true; error = null;
+        loading = true;
+        error = null;
         try
         {
             categories = await Api.GetAsync<List<CategoryDto>>("api/categories");
-            products = await Api.GetAsync<PagedResult<ProductDto>>($"api/products?q={Uri.EscapeDataString(search)}&categoryId={category}&sort={sort}&page={Math.Max(1, CurrentPage ?? 1)}&pageSize=12");
+            products = await Api.GetAsync<PagedResult<ProductDto>>(
+                $"api/products?q={Uri.EscapeDataString(search)}&categoryId={category}&sort={sort}&page={Math.Max(1, CurrentPage ?? 1)}&pageSize=12"
+            );
         }
-        catch (ApiException ex) { error = ex.Message; }
-        finally { loading = false; }
+        catch (ApiException ex)
+        {
+            error = ex.Message;
+        }
+        finally
+        {
+            loading = false;
+        }
     }
+
     private void ApplyFilters() => GoToPage(1);
-    private void GoToPage(int page) => Navigation.NavigateTo($"/?q={Uri.EscapeDataString(search)}&categoryId={category}&sort={sort}&page={page}");
+
+    private void GoToPage(int page) =>
+        Navigation.NavigateTo(
+            $"/?q={Uri.EscapeDataString(search)}&categoryId={category}&sort={sort}&page={page}"
+        );
+
     private async Task AddToCart(int id)
     {
-        if ((await Auth.GetAuthenticationStateAsync()).User.Identity?.IsAuthenticated != true) { Navigation.NavigateTo("/?login=1", true); return; }
-        busy = true; error = message = null;
-        try { await Api.PostAsync("api/cart/items", new CartQuantityRequest { ProductId = id, Quantity = 1 }); message = "Đã thêm sản phẩm vào giỏ hàng."; }
-        catch (ApiException ex) { error = ex.Message; }
-        finally { busy = false; }
+        if (busy)
+            return;
+        if ((await Auth.GetAuthenticationStateAsync()).User.Identity?.IsAuthenticated != true)
+        {
+            Navigation.NavigateTo("/?login=1", true);
+            return;
+        }
+        busy = true;
+        error = message = null;
+        try
+        {
+            await Api.PostAsync(
+                "api/cart/items",
+                new CartQuantityRequest { ProductId = id, Quantity = 1 }
+            );
+            message = "Đã thêm sản phẩm vào giỏ hàng.";
+        }
+        catch (ApiException ex)
+        {
+            error = ex.Message;
+        }
+        finally
+        {
+            busy = false;
+        }
     }
 }

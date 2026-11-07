@@ -1,10 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 340" role="img" aria-label="Galaxy Buds FE">
-<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ede9fe"/><stop offset="1" stop-color="#f8fafc"/></linearGradient></defs>
-<rect width="440" height="340" fill="url(#bg)"/>
-<circle cx="392" cy="36" r="70" fill="#7c3aed" opacity="0.10"/>
-<circle cx="30" cy="316" r="56" fill="#7c3aed" opacity="0.10"/>
-<ellipse cx="220" cy="292" rx="140" ry="10" fill="#1a3550" opacity="0.10"/>
-<rect x="118" y="96" width="204" height="150" rx="26" fill="#243e60"/><rect x="118" y="96" width="204" height="34" rx="17" fill="#7c3aed"/><circle cx="176" cy="186" r="30" fill="#7c3aed"/><circle cx="264" cy="186" r="30" fill="#7c3aed"/><circle cx="176" cy="186" r="12" fill="#ffffff" opacity="0.5"/><circle cx="264" cy="186" r="12" fill="#ffffff" opacity="0.5"/><rect x="196" y="222" width="48" height="8" rx="4" fill="#7c8ea4"/>
-<rect x="24" y="298" width="152" height="28" rx="14" fill="#7c3aed"/>
-<text x="40" y="318" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#ffffff">Galaxy Buds FE</text>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ede9fe"/>
+      <stop offset="1" stop-color="#f8fafc"/>
+    </linearGradient>
+  </defs>
+  <rect width="440" height="340" fill="url(#bg)"/>
+  <circle cx="392" cy="36" r="70" fill="#7c3aed" opacity="0.10"/>
+  <circle cx="30" cy="316" r="56" fill="#7c3aed" opacity="0.10"/>
+  <ellipse cx="220" cy="292" rx="140" ry="10" fill="#1a3550" opacity="0.10"/>
+  <rect x="118" y="96" width="204" height="150" rx="26" fill="#243e60"/>
+  <rect x="118" y="96" width="204" height="34" rx="17" fill="#7c3aed"/>
+  <circle cx="176" cy="186" r="30" fill="#7c3aed"/>
+  <circle cx="264" cy="186" r="30" fill="#7c3aed"/>
+  <circle cx="176" cy="186" r="12" fill="#ffffff" opacity="0.5"/>
+  <circle cx="264" cy="186" r="12" fill="#ffffff" opacity="0.5"/>
+  <rect x="196" y="222" width="48" height="8" rx="4" fill="#7c8ea4"/>
+  <rect x="24" y="298" width="152" height="28" rx="14" fill="#7c3aed"/>
+  <text x="40" y="318" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#ffffff">Galaxy Buds FE</text>
 </svg>

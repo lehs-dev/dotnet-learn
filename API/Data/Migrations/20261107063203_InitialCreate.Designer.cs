@@ -20,191 +20,159 @@ namespace ElectroShop.Api.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.12");
 
-            modelBuilder.Entity("ElectroShop.Api.Entities.ApplicationUser", b =>
+            modelBuilder.Entity(
+                "ElectroShop.Api.Entities.ApplicationUser",
+                b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("Id").HasColumnType("TEXT");
 
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("AccessFailedCount").HasColumnType("INTEGER");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("TEXT");
+                    b.Property<DateTimeOffset>("CreatedAt").HasColumnType("TEXT");
 
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+                    b.Property<string>("Email").HasMaxLength(256).HasColumnType("TEXT");
 
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("INTEGER");
+                    b.Property<bool>("EmailConfirmed").HasColumnType("INTEGER");
 
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
+                    b.Property<bool>("IsActive").HasColumnType("INTEGER");
 
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("INTEGER");
+                    b.Property<bool>("LockoutEnabled").HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("TEXT");
+                    b.Property<DateTimeOffset?>("LockoutEnd").HasColumnType("TEXT");
 
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+                    b.Property<string>("NormalizedEmail").HasMaxLength(256).HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("PasswordHash").HasColumnType("TEXT");
 
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("PhoneNumber").HasColumnType("TEXT");
 
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("INTEGER");
+                    b.Property<bool>("PhoneNumberConfirmed").HasColumnType("INTEGER");
 
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("SecurityStamp").HasColumnType("TEXT");
 
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("INTEGER");
+                    b.Property<bool>("TwoFactorEnabled").HasColumnType("INTEGER");
 
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+                    b.Property<string>("UserName").HasMaxLength(256).HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
+                    b.HasIndex("NormalizedEmail").HasDatabaseName("EmailIndex");
 
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex");
+                    b.HasIndex("NormalizedUserName").IsUnique().HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
+                }
+            );
 
-            modelBuilder.Entity("ElectroShop.Api.Entities.Cart", b =>
+            modelBuilder.Entity(
+                "ElectroShop.Api.Entities.Cart",
+                b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("Id").ValueGeneratedOnAdd().HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("TEXT");
+                    b.Property<DateTimeOffset>("CreatedAt").HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("TEXT");
+                    b.Property<DateTimeOffset>("UpdatedAt").HasColumnType("TEXT");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<string>("UserId").IsRequired().HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId").IsUnique();
 
                     b.ToTable("Carts");
-                });
+                }
+            );
 
-            modelBuilder.Entity("ElectroShop.Api.Entities.CartItem", b =>
+            modelBuilder.Entity(
+                "ElectroShop.Api.Entities.CartItem",
+                b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("Id").ValueGeneratedOnAdd().HasColumnType("INTEGER");
 
-                    b.Property<int>("CartId")
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("CartId").HasColumnType("INTEGER");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("ProductId").HasColumnType("INTEGER");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("Quantity").HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("CartId", "ProductId")
-                        .IsUnique();
+                    b.HasIndex("CartId", "ProductId").IsUnique();
 
-                    b.ToTable("CartItems", t =>
+                    b.ToTable(
+                        "CartItems",
+                        t =>
                         {
-                            t.HasCheckConstraint("CK_CartItem_Quantity", "[Quantity] > 0 AND [Quantity] <= 999");
-                        });
-                });
+                            t.HasCheckConstraint(
+                                "CK_CartItem_Quantity",
+                                "[Quantity] > 0 AND [Quantity] <= 999"
+                            );
+                        }
+                    );
+                }
+            );
 
-            modelBuilder.Entity("ElectroShop.Api.Entities.Category", b =>
+            modelBuilder.Entity(
+                "ElectroShop.Api.Entities.Category",
+                b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("Id").ValueGeneratedOnAdd().HasColumnType("INTEGER");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
+                    b.Property<bool>("IsActive").HasColumnType("INTEGER");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
+                    b.Property<string>("Name").IsRequired().HasMaxLength(100).HasColumnType("TEXT");
 
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
+                    b.Property<string>("Slug").IsRequired().HasMaxLength(100).HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Slug")
-                        .IsUnique();
+                    b.HasIndex("Slug").IsUnique();
 
                     b.ToTable("Categories");
-                });
+                }
+            );
 
-            modelBuilder.Entity("ElectroShop.Api.Entities.Order", b =>
+            modelBuilder.Entity(
+                "ElectroShop.Api.Entities.Order",
+                b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("Id").ValueGeneratedOnAdd().HasColumnType("INTEGER");
 
-                    b.Property<Guid>("CheckoutKey")
-                        .HasColumnType("TEXT");
+                    b.Property<Guid>("CheckoutKey").HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("TEXT");
+                    b.Property<DateTimeOffset>("CreatedAt").HasColumnType("TEXT");
 
-                    b.Property<string>("Note")
-                        .HasMaxLength(1000)
-                        .HasColumnType("TEXT");
+                    b.Property<string>("Note").HasMaxLength(1000).HasColumnType("TEXT");
 
                     b.Property<string>("OrderCode")
                         .IsRequired()
                         .HasMaxLength(40)
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("OrderStatus")
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("OrderStatus").HasColumnType("INTEGER");
 
-                    b.Property<int>("PaymentStatus")
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("PaymentStatus").HasColumnType("INTEGER");
 
                     b.Property<string>("ReceiverName")
                         .IsRequired()
@@ -226,48 +194,41 @@ namespace ElectroShop.Api.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("TotalAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("TEXT");
+                    b.Property<decimal>("TotalAmount").HasPrecision(18, 2).HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("TEXT");
+                    b.Property<DateTimeOffset>("UpdatedAt").HasColumnType("TEXT");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<string>("UserId").IsRequired().HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAt");
 
-                    b.HasIndex("OrderCode")
-                        .IsUnique();
+                    b.HasIndex("OrderCode").IsUnique();
 
-                    b.HasIndex("UserId", "CheckoutKey")
-                        .IsUnique();
+                    b.HasIndex("UserId", "CheckoutKey").IsUnique();
 
-                    b.ToTable("Orders", t =>
+                    b.ToTable(
+                        "Orders",
+                        t =>
                         {
                             t.HasCheckConstraint("CK_Order_Total", "[TotalAmount] >= 0");
-                        });
-                });
+                        }
+                    );
+                }
+            );
 
-            modelBuilder.Entity("ElectroShop.Api.Entities.OrderItem", b =>
+            modelBuilder.Entity(
+                "ElectroShop.Api.Entities.OrderItem",
+                b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("Id").ValueGeneratedOnAdd().HasColumnType("INTEGER");
 
-                    b.Property<decimal>("LineTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("TEXT");
+                    b.Property<decimal>("LineTotal").HasPrecision(18, 2).HasColumnType("TEXT");
 
-                    b.Property<int>("OrderId")
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("OrderId").HasColumnType("INTEGER");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("ProductId").HasColumnType("INTEGER");
 
                     b.Property<string>("ProductName")
                         .IsRequired()
@@ -279,12 +240,9 @@ namespace ElectroShop.Api.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("Quantity").HasColumnType("INTEGER");
 
-                    b.Property<decimal>("UnitPrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("TEXT");
+                    b.Property<decimal>("UnitPrice").HasPrecision(18, 2).HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -292,47 +250,45 @@ namespace ElectroShop.Api.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems", t =>
+                    b.ToTable(
+                        "OrderItems",
+                        t =>
                         {
-                            t.HasCheckConstraint("CK_OrderItem_Price", "[UnitPrice] >= 0 AND [LineTotal] = [UnitPrice] * [Quantity]");
+                            t.HasCheckConstraint(
+                                "CK_OrderItem_Price",
+                                "[UnitPrice] >= 0 AND [LineTotal] = [UnitPrice] * [Quantity]"
+                            );
 
                             t.HasCheckConstraint("CK_OrderItem_Quantity", "[Quantity] > 0");
-                        });
-                });
+                        }
+                    );
+                }
+            );
 
-            modelBuilder.Entity("ElectroShop.Api.Entities.PaymentTransaction", b =>
+            modelBuilder.Entity(
+                "ElectroShop.Api.Entities.PaymentTransaction",
+                b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("Id").ValueGeneratedOnAdd().HasColumnType("INTEGER");
 
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("TEXT");
+                    b.Property<decimal>("Amount").HasPrecision(18, 2).HasColumnType("TEXT");
 
-                    b.Property<Guid>("AttemptKey")
-                        .HasColumnType("TEXT");
+                    b.Property<Guid>("AttemptKey").HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("TEXT");
+                    b.Property<DateTimeOffset>("CreatedAt").HasColumnType("TEXT");
 
-                    b.Property<string>("FailureReason")
-                        .HasMaxLength(500)
-                        .HasColumnType("TEXT");
+                    b.Property<string>("FailureReason").HasMaxLength(500).HasColumnType("TEXT");
 
-                    b.Property<int>("OrderId")
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("OrderId").HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset?>("PaidAt")
-                        .HasColumnType("TEXT");
+                    b.Property<DateTimeOffset?>("PaidAt").HasColumnType("TEXT");
 
                     b.Property<string>("Provider")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("Status").HasColumnType("INTEGER");
 
                     b.Property<string>("TransactionCode")
                         .IsRequired()
@@ -341,33 +297,31 @@ namespace ElectroShop.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderId")
-                        .IsUnique()
-                        .HasFilter("[Status] = 1");
+                    b.HasIndex("OrderId").IsUnique().HasFilter("[Status] = 1");
 
-                    b.HasIndex("TransactionCode")
-                        .IsUnique();
+                    b.HasIndex("TransactionCode").IsUnique();
 
-                    b.HasIndex("OrderId", "AttemptKey")
-                        .IsUnique();
+                    b.HasIndex("OrderId", "AttemptKey").IsUnique();
 
-                    b.ToTable("PaymentTransactions", t =>
+                    b.ToTable(
+                        "PaymentTransactions",
+                        t =>
                         {
                             t.HasCheckConstraint("CK_Payment_Amount", "[Amount] >= 0");
-                        });
-                });
+                        }
+                    );
+                }
+            );
 
-            modelBuilder.Entity("ElectroShop.Api.Entities.Product", b =>
+            modelBuilder.Entity(
+                "ElectroShop.Api.Entities.Product",
+                b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("Id").ValueGeneratedOnAdd().HasColumnType("INTEGER");
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("CategoryId").HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("TEXT");
+                    b.Property<DateTimeOffset>("CreatedAt").HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -379,186 +333,164 @@ namespace ElectroShop.Api.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
+                    b.Property<bool>("IsActive").HasColumnType("INTEGER");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
+                    b.Property<string>("Name").IsRequired().HasMaxLength(200).HasColumnType("TEXT");
 
-                    b.Property<decimal>("Price")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("TEXT");
+                    b.Property<decimal>("Price").HasPrecision(18, 2).HasColumnType("TEXT");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
                         .HasColumnType("BLOB");
 
-                    b.Property<string>("SKU")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
+                    b.Property<string>("SKU").IsRequired().HasMaxLength(50).HasColumnType("TEXT");
 
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
+                    b.Property<string>("Slug").IsRequired().HasMaxLength(200).HasColumnType("TEXT");
 
-                    b.Property<int>("StockQuantity")
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("StockQuantity").HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("TEXT");
+                    b.Property<DateTimeOffset>("UpdatedAt").HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("SKU")
-                        .IsUnique();
+                    b.HasIndex("SKU").IsUnique();
 
-                    b.HasIndex("Slug")
-                        .IsUnique();
+                    b.HasIndex("Slug").IsUnique();
 
-                    b.ToTable("Products", t =>
+                    b.ToTable(
+                        "Products",
+                        t =>
                         {
                             t.HasCheckConstraint("CK_Product_Price", "[Price] >= 0");
 
                             t.HasCheckConstraint("CK_Product_Stock", "[StockQuantity] >= 0");
-                        });
-                });
+                        }
+                    );
+                }
+            );
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+            modelBuilder.Entity(
+                "Microsoft.AspNetCore.Identity.IdentityRole",
+                b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("Id").HasColumnType("TEXT");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+                    b.Property<string>("Name").HasMaxLength(256).HasColumnType("TEXT");
 
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+                    b.Property<string>("NormalizedName").HasMaxLength(256).HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex");
+                    b.HasIndex("NormalizedName").IsUnique().HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
-                });
+                }
+            );
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+            modelBuilder.Entity(
+                "Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>",
+                b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("Id").ValueGeneratedOnAdd().HasColumnType("INTEGER");
 
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("ClaimType").HasColumnType("TEXT");
 
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("ClaimValue").HasColumnType("TEXT");
 
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<string>("RoleId").IsRequired().HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetRoleClaims", (string)null);
-                });
+                }
+            );
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+            modelBuilder.Entity(
+                "Microsoft.AspNetCore.Identity.IdentityUserClaim<string>",
+                b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                    b.Property<int>("Id").ValueGeneratedOnAdd().HasColumnType("INTEGER");
 
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("ClaimType").HasColumnType("TEXT");
 
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("ClaimValue").HasColumnType("TEXT");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<string>("UserId").IsRequired().HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("AspNetUserClaims", (string)null);
-                });
+                }
+            );
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            modelBuilder.Entity(
+                "Microsoft.AspNetCore.Identity.IdentityUserLogin<string>",
+                b =>
                 {
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("LoginProvider").HasColumnType("TEXT");
 
-                    b.Property<string>("ProviderKey")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("ProviderKey").HasColumnType("TEXT");
 
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("ProviderDisplayName").HasColumnType("TEXT");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<string>("UserId").IsRequired().HasColumnType("TEXT");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("AspNetUserLogins", (string)null);
-                });
+                }
+            );
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+            modelBuilder.Entity(
+                "Microsoft.AspNetCore.Identity.IdentityUserRole<string>",
+                b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("UserId").HasColumnType("TEXT");
 
-                    b.Property<string>("RoleId")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("RoleId").HasColumnType("TEXT");
 
                     b.HasKey("UserId", "RoleId");
 
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
-                });
+                }
+            );
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            modelBuilder.Entity(
+                "Microsoft.AspNetCore.Identity.IdentityUserToken<string>",
+                b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("UserId").HasColumnType("TEXT");
 
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("LoginProvider").HasColumnType("TEXT");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("Name").HasColumnType("TEXT");
 
-                    b.Property<string>("Value")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("Value").HasColumnType("TEXT");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
+                }
+            );
 
-            modelBuilder.Entity("ElectroShop.Api.Entities.Cart", b =>
+            modelBuilder.Entity(
+                "ElectroShop.Api.Entities.Cart",
+                b =>
                 {
                     b.HasOne("ElectroShop.Api.Entities.ApplicationUser", "User")
                         .WithOne()
@@ -567,9 +499,12 @@ namespace ElectroShop.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
+                }
+            );
 
-            modelBuilder.Entity("ElectroShop.Api.Entities.CartItem", b =>
+            modelBuilder.Entity(
+                "ElectroShop.Api.Entities.CartItem",
+                b =>
                 {
                     b.HasOne("ElectroShop.Api.Entities.Cart", "Cart")
                         .WithMany("Items")
@@ -586,9 +521,12 @@ namespace ElectroShop.Api.Migrations
                     b.Navigation("Cart");
 
                     b.Navigation("Product");
-                });
+                }
+            );
 
-            modelBuilder.Entity("ElectroShop.Api.Entities.Order", b =>
+            modelBuilder.Entity(
+                "ElectroShop.Api.Entities.Order",
+                b =>
                 {
                     b.HasOne("ElectroShop.Api.Entities.ApplicationUser", "User")
                         .WithMany()
@@ -597,9 +535,12 @@ namespace ElectroShop.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
+                }
+            );
 
-            modelBuilder.Entity("ElectroShop.Api.Entities.OrderItem", b =>
+            modelBuilder.Entity(
+                "ElectroShop.Api.Entities.OrderItem",
+                b =>
                 {
                     b.HasOne("ElectroShop.Api.Entities.Order", "Order")
                         .WithMany("Items")
@@ -616,9 +557,12 @@ namespace ElectroShop.Api.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("Product");
-                });
+                }
+            );
 
-            modelBuilder.Entity("ElectroShop.Api.Entities.PaymentTransaction", b =>
+            modelBuilder.Entity(
+                "ElectroShop.Api.Entities.PaymentTransaction",
+                b =>
                 {
                     b.HasOne("ElectroShop.Api.Entities.Order", "Order")
                         .WithMany("Payments")
@@ -627,9 +571,12 @@ namespace ElectroShop.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Order");
-                });
+                }
+            );
 
-            modelBuilder.Entity("ElectroShop.Api.Entities.Product", b =>
+            modelBuilder.Entity(
+                "ElectroShop.Api.Entities.Product",
+                b =>
                 {
                     b.HasOne("ElectroShop.Api.Entities.Category", "Category")
                         .WithMany("Products")
@@ -638,36 +585,48 @@ namespace ElectroShop.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
-                });
+                }
+            );
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+            modelBuilder.Entity(
+                "Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>",
+                b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
+                }
+            );
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+            modelBuilder.Entity(
+                "Microsoft.AspNetCore.Identity.IdentityUserClaim<string>",
+                b =>
                 {
                     b.HasOne("ElectroShop.Api.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
+                }
+            );
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            modelBuilder.Entity(
+                "Microsoft.AspNetCore.Identity.IdentityUserLogin<string>",
+                b =>
                 {
                     b.HasOne("ElectroShop.Api.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
+                }
+            );
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+            modelBuilder.Entity(
+                "Microsoft.AspNetCore.Identity.IdentityUserRole<string>",
+                b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                         .WithMany()
@@ -680,33 +639,46 @@ namespace ElectroShop.Api.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
+                }
+            );
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            modelBuilder.Entity(
+                "Microsoft.AspNetCore.Identity.IdentityUserToken<string>",
+                b =>
                 {
                     b.HasOne("ElectroShop.Api.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
+                }
+            );
 
-            modelBuilder.Entity("ElectroShop.Api.Entities.Cart", b =>
+            modelBuilder.Entity(
+                "ElectroShop.Api.Entities.Cart",
+                b =>
                 {
                     b.Navigation("Items");
-                });
+                }
+            );
 
-            modelBuilder.Entity("ElectroShop.Api.Entities.Category", b =>
+            modelBuilder.Entity(
+                "ElectroShop.Api.Entities.Category",
+                b =>
                 {
                     b.Navigation("Products");
-                });
+                }
+            );
 
-            modelBuilder.Entity("ElectroShop.Api.Entities.Order", b =>
+            modelBuilder.Entity(
+                "ElectroShop.Api.Entities.Order",
+                b =>
                 {
                     b.Navigation("Items");
 
                     b.Navigation("Payments");
-                });
+                }
+            );
 #pragma warning restore 612, 618
         }
     }

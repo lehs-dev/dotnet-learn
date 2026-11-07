@@ -28,7 +28,7 @@ dotnet build ElectroShop.sln --nologo --verbosity quiet -nr:false -p:UseSharedCo
 pids=()
 cleanup() {
   trap - EXIT INT TERM
-  if (( ${#pids[@]} )); then
+  if ((${#pids[@]})); then
     echo ""
     echo "==> Đang dừng các dịch vụ..."
     kill "${pids[@]}" 2>/dev/null || true
@@ -38,12 +38,15 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 echo "==> Khởi động API trên http://0.0.0.0:5100..."
-dotnet run --project API --no-build --no-launch-profile --urls http://0.0.0.0:5100 > .local/logs/api.log 2>&1 &
+dotnet run --project API --no-build --no-launch-profile --urls http://0.0.0.0:5100 >.local/logs/api.log 2>&1 &
 pids+=("$!")
 
 ready=false
-for ((attempt=0; attempt<45; attempt++)); do
-  if curl --silent --fail http://localhost:5100/health > /dev/null; then ready=true; break; fi
+for ((attempt = 0; attempt < 45; attempt++)); do
+  if curl --silent --fail http://localhost:5100/health >/dev/null; then
+    ready=true
+    break
+  fi
   if ! kill -0 "${pids[0]}" 2>/dev/null; then
     echo "Lỗi khởi động API:"
     cat .local/logs/api.log
@@ -51,37 +54,41 @@ for ((attempt=0; attempt<45; attempt++)); do
   fi
   sleep 1
 done
-if [[ "$ready" != true ]]; then echo 'API chưa sẵn sàng. Xem .local/logs/api.log'; exit 1; fi
+if [[ "$ready" != true ]]; then
+  echo 'API chưa sẵn sàng. Xem .local/logs/api.log'
+  exit 1
+fi
 
 FRONTENDS=()
 case "$TARGET" in
-  api)
-    ;;
-  razor)
-    FRONTENDS=('RazorPage:5101')
-    ;;
-  blazor)
-    FRONTENDS=('BlazorWeb:5102')
-    ;;
-  mvc)
-    FRONTENDS=('MVC:5103')
-    ;;
-  all|*)
-    FRONTENDS=('RazorPage:5101' 'BlazorWeb:5102' 'MVC:5103')
-    ;;
+api) ;;
+razor)
+  FRONTENDS=('RazorPage:5101')
+  ;;
+blazor)
+  FRONTENDS=('BlazorWeb:5102')
+  ;;
+mvc)
+  FRONTENDS=('MVC:5103')
+  ;;
+all | *)
+  FRONTENDS=('RazorPage:5101' 'BlazorWeb:5102' 'MVC:5103')
+  ;;
 esac
 
 for spec in "${FRONTENDS[@]}"; do
-  project="${spec%:*}"; port="${spec#*:}"
+  project="${spec%:*}"
+  port="${spec#*:}"
   echo "==> Khởi động $project trên http://0.0.0.0:$port..."
-  dotnet run --project "$project" --no-build --no-launch-profile --urls "http://0.0.0.0:$port" > ".local/logs/$project.log" 2>&1 &
+  dotnet run --project "$project" --no-build --no-launch-profile --urls "http://0.0.0.0:$port" >".local/logs/$project.log" 2>&1 &
   pids+=("$!")
 done
 
 echo "------------------------------------------------------------"
 printf '%s\n' 'API: http://localhost:5100 (OpenAPI: /openapi/v1.json)'
 for spec in "${FRONTENDS[@]}"; do
-  project="${spec%:*}"; port="${spec#*:}"
+  project="${spec%:*}"
+  port="${spec#*:}"
   printf '%s: http://localhost:%s\n' "$project" "$port"
 done
 printf '%s\n' 'Logs: .local/logs/ · Nhấn Ctrl+C để dừng.'

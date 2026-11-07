@@ -1,13 +1,11 @@
-using Microsoft.AspNetCore.Identity;
 using ElectroShop.Contracts.Enums;
+using Microsoft.AspNetCore.Identity;
+
 namespace ElectroShop.Api.Entities;
 
 public class Cart
 {
-    public int Id
-    {
-        get; set;
-    }
+    public int Id { get; set; }
     public string UserId { get; set; } = "";
     public ApplicationUser User { get; set; } = null!;
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;

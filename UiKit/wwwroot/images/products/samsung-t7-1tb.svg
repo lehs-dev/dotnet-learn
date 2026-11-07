@@ -1,10 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 340" role="img" aria-label="Samsung T7 1TB">
-<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e0e7ff"/><stop offset="1" stop-color="#f8fafc"/></linearGradient></defs>
-<rect width="440" height="340" fill="url(#bg)"/>
-<circle cx="392" cy="36" r="70" fill="#4338ca" opacity="0.10"/>
-<circle cx="30" cy="316" r="56" fill="#4338ca" opacity="0.10"/>
-<ellipse cx="220" cy="292" rx="140" ry="10" fill="#1a3550" opacity="0.10"/>
-<rect x="102" y="76" width="236" height="168" rx="22" fill="#243e60"/><rect x="102" y="76" width="236" height="168" rx="22" fill="#4338ca" opacity="0.22"/><rect x="126" y="100" width="120" height="20" rx="10" fill="#4338ca"/><text x="126" y="196" font-family="Arial, sans-serif" font-size="44" font-weight="700" fill="#ffffff">T7</text><text x="126" y="226" font-family="Arial, sans-serif" font-size="20" fill="#c3d0df">SSD 1TB</text><rect x="292" y="196" width="24" height="12" rx="6" fill="#4338ca"/>
-<rect x="24" y="298" width="152" height="28" rx="14" fill="#4338ca"/>
-<text x="40" y="318" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#ffffff">Samsung T7 1TB</text>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e0e7ff"/>
+      <stop offset="1" stop-color="#f8fafc"/>
+    </linearGradient>
+  </defs>
+  <rect width="440" height="340" fill="url(#bg)"/>
+  <circle cx="392" cy="36" r="70" fill="#4338ca" opacity="0.10"/>
+  <circle cx="30" cy="316" r="56" fill="#4338ca" opacity="0.10"/>
+  <ellipse cx="220" cy="292" rx="140" ry="10" fill="#1a3550" opacity="0.10"/>
+  <rect x="102" y="76" width="236" height="168" rx="22" fill="#243e60"/>
+  <rect x="102" y="76" width="236" height="168" rx="22" fill="#4338ca" opacity="0.22"/>
+  <rect x="126" y="100" width="120" height="20" rx="10" fill="#4338ca"/>
+  <text x="126" y="196" font-family="Arial, sans-serif" font-size="44" font-weight="700" fill="#ffffff">T7</text>
+  <text x="126" y="226" font-family="Arial, sans-serif" font-size="20" fill="#c3d0df">SSD 1TB</text>
+  <rect x="292" y="196" width="24" height="12" rx="6" fill="#4338ca"/>
+  <rect x="24" y="298" width="152" height="28" rx="14" fill="#4338ca"/>
+  <text x="40" y="318" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#ffffff">Samsung T7 1TB</text>
 </svg>

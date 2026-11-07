@@ -1,1 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-label="Minh họa sản phẩm"><ellipse cx="160" cy="219" rx="105" ry="9" fill="#1a3550" opacity=".08"/><rect x="29" y="27" width="262" height="157" rx="9" fill="#243e60"/><rect x="38" y="36" width="244" height="136" rx="2" fill="#b6cfe9"/><path d="M38 148l73-72 76 60 53-47 42 40v43H38z" fill="#729ac3"/><path d="M145 184h30v25h-30z" fill="#7c8ea4"/><path d="M114 209h92l14 8H100z" fill="#243e60"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-label="Minh họa sản phẩm">
+  <ellipse cx="160" cy="219" rx="105" ry="9" fill="#1a3550" opacity=".08"/>
+  <rect x="29" y="27" width="262" height="157" rx="9" fill="#243e60"/>
+  <rect x="38" y="36" width="244" height="136" rx="2" fill="#b6cfe9"/>
+  <path d="M38 148l73-72 76 60 53-47 42 40v43H38z" fill="#729ac3"/>
+  <path d="M145 184h30v25h-30z" fill="#7c8ea4"/>
+  <path d="M114 209h92l14 8H100z" fill="#243e60"/>
+</svg>

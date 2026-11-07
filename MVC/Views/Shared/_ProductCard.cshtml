@@ -1,24 +1,26 @@
 @model ProductDto
+
 <article class="product-card">
     <a class="product-image" href="/products/@Model.Slug">
-<img src="@Model.ImageUrl" alt="@Model.Name" loading="lazy" />
-</a>
+        <img src="@Model.ImageUrl" alt="@Model.Name" loading="lazy" />
+    </a>
     <div class="product-info">
-<span class="product-category">@Model.CategoryName</span>
-<h3 class="product-title">
-<a href="/products/@Model.Slug">@Model.Name</a>
-</h3>
-<div class="product-price">@Display.Money(Model.Price)</div>
-<p class="product-meta">@(Model.StockQuantity > 0 ? "● Còn hàng" : "Hết hàng")</p>
-    <div class="card-actions">
-<a class="button secondary small" href="/products/@Model.Slug">Xem chi tiết</a>
-<form action="/cart/add" method="post">@Html.AntiForgeryToken()<input type="hidden" name="ProductId" value="@Model.Id" />
-<input type="hidden" name="Quantity" value="1" />
-<input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
-<button class="button small" disabled="@(Model.StockQuantity <= 0)">Thêm vào giỏ</button>
-</form>
-
-</div>
-</div>
+        <span class="product-category">@Model.CategoryName</span>
+        <h3 class="product-title"><a href="/products/@Model.Slug">@Model.Name</a></h3>
+        <div class="product-price">@Display.Money(Model.Price)</div>
+        <p class="product-meta">@(Model.StockQuantity > 0 ? "● Còn hàng" : "Hết hàng")</p>
+        <div class="card-actions">
+            <a class="button secondary small" href="/products/@Model.Slug">Xem chi tiết</a>
+            <form action="/cart/add" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="ProductId" value="@Model.Id" />
+                <input type="hidden" name="Quantity" value="1" />
+                <input
+                    type="hidden"
+                    name="returnUrl"
+                    value="@(Context.Request.Path + Context.Request.QueryString)" />
+                <button class="button small" disabled="@(Model.StockQuantity <= 0)">Thêm vào giỏ</button>
+            </form>
+        </div>
+    </div>
 </article>
-

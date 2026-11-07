@@ -1,309 +1,582 @@
 @model AdminViewModel
-@{ ViewData["Title"] = "Quản trị"; }
+@{
+    ViewData["Title"] = "Quản trị";
+}
 <div class="page-heading">
-<div>
-<span class="eyebrow">KHÔNG GIAN QUẢN LÝ</span>
-<h1>Quản trị cửa hàng</h1>
-</div>
-<span class="badge">Admin · MVC</span>
+    <div>
+        <span class="eyebrow">KHÔNG GIAN QUẢN LÝ</span>
+        <h1>Quản trị cửa hàng</h1>
+        <p class="page-description">Theo dõi hoạt động và quản lý cửa hàng của bạn.</p>
+    </div>
+    <a class="button secondary" href="/">Xem cửa hàng ↗</a>
 </div>
 <div class="admin-layout">
-<aside class="admin-sidebar" aria-label="Khu vực quản trị">@foreach (var item in new[] { ("dashboard", "Tổng quan"), ("orders", "Đơn hàng"), ("products", "Sản phẩm"), ("customers", "Khách hàng"), ("accounts", "Tài khoản") }) { <a href="/admin?tab=@item.Item1" class="tab-button @(Model.Tab == item.Item1 ? "active" : "")" aria-current="@(Model.Tab == item.Item1 ? "page" : null)">@item.Item2</a> }</aside>
-<section class="admin-content">
-@if (Model.Error is not null) { <div class="alert error" role="alert">@Model.Error</div> }
-@if (Model.Tab == "dashboard") { <h2>Tổng quan cửa hàng</h2>@if (Model.Dashboard is { } dashboard) { <div class="stats-grid">
-<article class="stat-card">
-<span>Sản phẩm</span>
-<strong>@dashboard.TotalProducts</strong>
-</article>
+    <nav class="admin-sidebar" aria-label="Khu vực quản trị">
+        <span class="admin-sidebar-label">QUẢN LÝ CỬA HÀNG</span>
+        <a
+            href="/admin?tab=dashboard"
+            class="tab-button @(Model.Tab == "dashboard" ? "active" : "")"
+            aria-current="@(Model.Tab == "dashboard" ? "page" : null)">
+            <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z" />
+            </svg>
+            Tổng quan
+        </a>
+        <a
+            href="/admin?tab=orders"
+            class="tab-button @(Model.Tab == "orders" ? "active" : "")"
+            aria-current="@(Model.Tab == "orders" ? "page" : null)">
+            <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 3h12v18H6z M9 7h6 M9 12h6 M9 17h4" />
+            </svg>
+            Đơn hàng
+        </a>
+        <a
+            href="/admin?tab=products"
+            class="tab-button @(Model.Tab == "products" ? "active" : "")"
+            aria-current="@(Model.Tab == "products" ? "page" : null)">
+            <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m12 3 9 5v9l-9 5-9-5V8z M3 8l9 5 9-5 M12 13v9 M7 5l9 5" />
+            </svg>
+            Sản phẩm
+        </a>
+        <a
+            href="/admin?tab=customers"
+            class="tab-button @(Model.Tab == "customers" ? "active" : "")"
+            aria-current="@(Model.Tab == "customers" ? "page" : null)">
+            <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                    d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M17 4a4 4 0 0 1 0 8 M22 21v-2a4 4 0 0 0-3-4" />
+            </svg>
+            Khách hàng
+        </a>
+        <a
+            href="/admin?tab=accounts"
+            class="tab-button @(Model.Tab == "accounts" ? "active" : "")"
+            aria-current="@(Model.Tab == "accounts" ? "page" : null)">
+            <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3 3 7v5c0 5 9 10 9 10s9-5 9-10V7z M8 12l3 3 5-6" />
+            </svg>
+            Tài khoản
+        </a>
+    </nav>
+    <section class="admin-content">
+        @if (Model.Error is not null)
+        {
+            <div class="alert error" role="alert">@Model.Error</div>
+        }
+        @if (Model.Tab == "dashboard")
+        {
+            <h2>Tổng quan cửa hàng</h2>
+            @if (Model.Dashboard is { } dashboard)
+            {
+                <div class="stats-grid">
+                    <article class="stat-card">
+                        <span>Sản phẩm</span>
+                        <strong>@dashboard.TotalProducts</strong>
+                    </article>
+                    <article class="stat-card">
+                        <span>Khách hàng</span>
+                        <strong>@dashboard.TotalCustomers</strong>
+                    </article>
+                    <article class="stat-card">
+                        <span>Đơn hàng</span>
+                        <strong>@dashboard.TotalOrders</strong>
+                    </article>
+                    <article class="stat-card">
+                        <span>Doanh thu đã thanh toán</span>
+                        <strong>@Display.Money(dashboard.Revenue)</strong>
+                    </article>
+                    <article class="stat-card">
+                        <span>Đơn chờ xử lý</span>
+                        <strong>@dashboard.PendingOrders</strong>
+                    </article>
+                </div>
+                <h3>5 đơn hàng gần nhất</h3>
+                @if (dashboard.RecentOrders.Count == 0)
+                {
+                    <div class="empty-state">Chưa có đơn hàng.</div>
+                }
+                else
+                {
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Khách hàng</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in dashboard.RecentOrders)
+                                {
+                                    <tr>
+                                        <td>@order.OrderCode</td>
+                                        <td>@order.CustomerName</td>
+                                        <td>@Display.Date(order.CreatedAt)</td>
+                                        <td>@Display.Money(order.TotalAmount)</td>
+                                        <td>@Display.OrderStatus(order.OrderStatus)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            }
+        }
+        @if (Model.Tab == "orders")
+        {
+            <h2>Quản lý đơn hàng</h2>
+            <form method="get" action="/admin" class="filters">
+                <input type="hidden" name="tab" value="orders" />
+                <label class="field">
+                    Mã đơn hoặc khách hàng
+                    <input name="q" value="@Model.Q" type="search" placeholder="Nhập từ khóa tìm kiếm…" />
+                </label>
+                <label class="field">
+                    Trạng thái
+                    <select name="status">
+                        <option value="">Tất cả trạng thái</option>
+                        @foreach (var status in Enum.GetValues<OrderStatus>())
+                        {
+                            <option value="@status" selected="@(Model.Status == status.ToString())">
+                                @Display.OrderStatus(status)
+                            </option>
+                        }
+                    </select>
+                </label>
+                <button class="button">Lọc đơn hàng</button>
+                <a class="button secondary" href="/admin?tab=orders">Đặt lại</a>
+            </form>
+            <p>@Model.Orders.TotalCount đơn hàng</p>
+            @foreach (var order in Model.Orders.Items)
+            {
+                <article class="order-card">
+                    <div class="page-heading">
+                        <div>
+                            <h3>@order.OrderCode · @order.CustomerName</h3>
+                            <p>@Display.Date(order.CreatedAt) · @Display.Money(order.TotalAmount)</p>
+                        </div>
+                        <span class="badge">@Display.PaymentStatus(order.PaymentStatus)</span>
+                    </div>
+                    <details>
+                        <summary>Xem chi tiết đơn hàng</summary>
+                        <partial name="_OrderDetails" model="order" />
+                    </details>
+                    <form action="/admin/order/status" method="post" class="filters">
+                        <input
+                            type="hidden"
+                            name="returnUrl"
+                            value="@(Context.Request.Path + Context.Request.QueryString)" />
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@order.Id" />
+                        <label class="field">
+                            Trạng thái
+                            <select name="Status">
+                                @foreach (var status in Display.NextStatuses(order))
+                                {
+                                    <option value="@status" selected="@(status == order.OrderStatus)">
+                                        @Display.OrderStatus(status)
+                                    </option>
+                                }
+                            </select>
+                        </label>
+                        <button class="button small">Cập nhật trạng thái</button>
+                    </form>
+                </article>
+            }
 
-<article class="stat-card">
-<span>Khách hàng</span>
-<strong>@dashboard.TotalCustomers</strong>
-</article>
+            @if (Model.Orders.Items.Count == 0 && Model.Error is null)
+            {
+                <div class="empty-state">Chưa có đơn hàng phù hợp.</div>
+            }
+            <partial name="_AdminPagination" model="(Model, Model.Orders.TotalPages)" />
+        }
+        @if (Model.Tab == "products")
+        {
+            <h2>Quản lý sản phẩm</h2>
+            <form action="/admin" method="get" class="filters">
+                <input type="hidden" name="tab" value="products" />
+                <label class="field">
+                    Tìm sản phẩm
+                    <input name="q" value="@Model.Q" type="search" placeholder="Nhập từ khóa tìm kiếm…" />
+                </label>
+                <button class="button">Tìm kiếm</button>
+                <a href="/admin?tab=products#product-form" class="button secondary">Thêm sản phẩm</a>
+            </form>
+            <p>@Model.Products.TotalCount sản phẩm</p>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Sản phẩm / SKU</th>
+                            <th>Danh mục</th>
+                            <th>Giá</th>
+                            <th>Tồn kho</th>
+                            <th>Hiển thị</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var product in Model.Products.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@product.Name</strong>
+                                    <p class="product-meta">@product.SKU</p>
+                                </td>
+                                <td>@product.CategoryName</td>
+                                <td>@Display.Money(product.Price)</td>
+                                <td>@product.StockQuantity</td>
+                                <td>@(product.IsActive ? "Đang bán" : "Đã ẩn")</td>
+                                <td>
+                                    <a
+                                        class="button secondary small"
+                                        asp-action="Index"
+                                        asp-route-tab="products"
+                                        asp-route-q="@Model.Q"
+                                        asp-route-page="@Model.Page"
+                                        asp-route-editProductId="@product.Id"
+                                        asp-fragment="product-form">
+                                        Sửa
+                                    </a>
+                                    @if (product.IsActive)
+                                    {
+                                        <form
+                                            action="/admin/product/hide"
+                                            method="post"
+                                            data-confirm="Ẩn sản phẩm này khỏi danh sách bán hàng?">
+                                            <input
+                                                type="hidden"
+                                                name="returnUrl"
+                                                value="@(Context.Request.Path + Context.Request.QueryString)" />
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@product.Id" />
+                                            <button class="button danger small">Ẩn</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <partial name="_AdminPagination" model="(Model, Model.Products.TotalPages)" />
+            <section id="product-form" class="summary-card">
+                <h3>@(Model.EditProductId.HasValue ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới")</h3>
+                <form action="/admin/product" method="post">
+                    <input
+                        type="hidden"
+                        name="returnUrl"
+                        value="@(Context.Request.Path + Context.Request.QueryString)" />
+                    @Html.AntiForgeryToken()
+                    <input name="id" type="hidden" value="@Model.EditProductId" />
+                    <input asp-for="Product.RowVersion" type="hidden" />
+                    <div class="form-grid">
+                        <label class="field">
+                            Tên sản phẩm
+                            <input asp-for="Product.Name" required maxlength="200" />
+                        </label>
+                        <label class="field">
+                            Slug
+                            <input
+                                asp-for="Product.Slug"
+                                required
+                                pattern="[a-z0-9]+(-[a-z0-9]+)*"
+                                maxlength="200"
+                                placeholder="laptop-van-phong" />
+                        </label>
+                        <label class="field">
+                            Mã SKU
+                            <input asp-for="Product.SKU" required maxlength="50" />
+                        </label>
+                        <label class="field">
+                            Danh mục
+                            <select asp-for="Product.CategoryId" required>
+                                <option value="">Chọn danh mục</option>
+                                @foreach (var category in Model.Categories)
+                                {
+                                    <option value="@category.Id">@category.Name @(category.IsActive ? "" : "(đã ẩn)")</option>
+                                }
+                            </select>
+                        </label>
+                        <label class="field">
+                            Giá bán (VND)
+                            <input asp-for="Product.Price" type="number" min="0" max="999999999999" step="0.01" required />
+                        </label>
+                        <label class="field">
+                            Tồn kho
+                            <input asp-for="Product.StockQuantity" type="number" min="0" max="1000000" required />
+                        </label>
+                        <label class="field full-width">
+                            Đường dẫn ảnh
+                            <input asp-for="Product.ImageUrl" required maxlength="500" />
+                        </label>
+                        <label class="field full-width">
+                            Mô tả
+                            <textarea asp-for="Product.Description" required maxlength="4000" rows="3">
+                            </textarea>
+                        </label>
+                        <label class="field">
+                            <span>
+                                <input asp-for="Product.IsActive" />
+                                Đang bán
+                            </span>
+                        </label>
+                        <div class="full-width">
+                            <button class="button">Lưu sản phẩm</button>
+                            <a class="button secondary" href="/admin?tab=products#product-form">Hủy / tạo mới</a>
+                        </div>
+                    </div>
+                </form>
+            </section>
+            <section class="summary-card">
+                <h3>Danh mục sản phẩm</h3>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Tên</th>
+                                <th>Slug</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var category in Model.Categories)
+                            {
+                                <tr>
+                                    <td>@category.Name</td>
+                                    <td>@category.Slug</td>
+                                    <td>@(category.IsActive ? "Hiển thị" : "Đã ẩn")</td>
+                                    <td>
+                                        <a
+                                            class="button secondary small"
+                                            asp-action="Index"
+                                            asp-route-tab="products"
+                                            asp-route-editCategoryId="@category.Id"
+                                            asp-fragment="category-form">
+                                            Sửa
+                                        </a>
+                                        @if (category.IsActive)
+                                        {
+                                            <form action="/admin/category/hide" method="post" data-confirm="Ẩn danh mục này?">
+                                                <input
+                                                    type="hidden"
+                                                    name="returnUrl"
+                                                    value="@(Context.Request.Path + Context.Request.QueryString)" />
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@category.Id" />
+                                                <button class="button danger small">Ẩn</button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <form id="category-form" action="/admin/category" method="post">
+                    <input
+                        type="hidden"
+                        name="returnUrl"
+                        value="@(Context.Request.Path + Context.Request.QueryString)" />
+                    @Html.AntiForgeryToken()
+                    <h4>@(Model.EditCategoryId.HasValue ? "Sửa danh mục" : "Thêm danh mục")</h4>
+                    <input name="id" type="hidden" value="@Model.EditCategoryId" />
+                    <div class="form-grid">
+                        <label class="field">
+                            Tên danh mục
+                            <input asp-for="Category.Name" required maxlength="100" />
+                        </label>
+                        <label class="field">
+                            Slug
+                            <input asp-for="Category.Slug" required maxlength="100" pattern="[a-z0-9]+(-[a-z0-9]+)*" />
+                        </label>
+                        <label class="field full-width">
+                            Mô tả
+                            <textarea asp-for="Category.Description" maxlength="1000" rows="2">
+                            </textarea>
+                        </label>
+                        <label class="field">
+                            <span>
+                                <input asp-for="Category.IsActive" />
+                                Hiển thị
+                            </span>
+                        </label>
+                        <div class="full-width">
+                            <button class="button">Lưu danh mục</button>
+                            <a class="button secondary" href="/admin?tab=products#category-form">Hủy / tạo mới</a>
+                        </div>
+                    </div>
+                </form>
+            </section>
+        }
+        @if (Model.Tab == "customers")
+        {
+            <h2>Quản lý khách hàng</h2>
+            <form method="get" action="/admin" class="filters">
+                <input type="hidden" name="tab" value="customers" />
+                <label class="field">
+                    Họ tên hoặc email
+                    <input name="q" value="@Model.Q" type="search" placeholder="Nhập từ khóa tìm kiếm…" />
+                </label>
+                <button class="button">Tìm kiếm</button>
+                <a class="button secondary" href="/admin?tab=@Model.Tab">Đặt lại</a>
+            </form>
+            <p>@Model.Customers.TotalCount khách hàng</p>
+            @foreach (var customer in Model.Customers.Items)
+            {
+                <article class="order-card">
+                    <div class="page-heading">
+                        <div>
+                            <h3>@customer.FullName</h3>
+                            <p>@customer.Email · @customer.PhoneNumber</p>
+                        </div>
+                        <span class="badge @(customer.IsActive ? "success" : "neutral")">
+                            @(customer.IsActive ? "Đang hoạt động" : "Đã khóa")
+                        </span>
+                    </div>
+                    <p>
+                        Ngày tạo:
+                        @Display.Date(customer.CreatedAt)
+                        ·
+                        @customer.OrderCount
+                        đơn hàng · Tổng chi tiêu:
+                        <strong>@Display.Money(customer.TotalSpent)</strong>
+                    </p>
+                    <details>
+                        <summary>Sửa hồ sơ khách hàng</summary>
+                        <form action="/admin/customer" method="post" class="form-grid">
+                            <input
+                                type="hidden"
+                                name="returnUrl"
+                                value="@(Context.Request.Path + Context.Request.QueryString)" />
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@customer.Id" />
+                            <label class="field">
+                                Họ tên
+                                <input name="FullName" value="@customer.FullName" required minlength="2" maxlength="100" />
+                            </label>
+                            <label class="field">
+                                Số điện thoại
+                                <input type="tel" name="PhoneNumber" value="@customer.PhoneNumber" required maxlength="20" />
+                            </label>
+                            <div class="full-width">
+                                <button class="button small">Lưu hồ sơ</button>
+                            </div>
+                        </form>
+                    </details>
+                    <a
+                        class="button secondary small"
+                        asp-action="Index"
+                        asp-route-tab="customers"
+                        asp-route-page="@Model.Page"
+                        asp-route-q="@Model.Q"
+                        asp-route-customerId="@customer.Id"
+                        asp-fragment="customer-orders">
+                        Xem lịch sử mua hàng
+                    </a>
+                </article>
+            }
 
-<article class="stat-card">
-<span>Đơn hàng</span>
-<strong>@dashboard.TotalOrders</strong>
-</article>
+            @if (Model.Customers.Items.Count == 0 && Model.Error is null)
+            {
+                <div class="empty-state">Chưa có khách hàng phù hợp.</div>
+            }
+            <partial name="_AdminPagination" model="(Model, Model.Customers.TotalPages)" />
+            @if (Model.CustomerOrders is not null)
+            {
+                <section id="customer-orders" class="summary-card">
+                    <h3>Lịch sử mua hàng của khách hàng</h3>
+                    @if (Model.CustomerOrders.Count == 0)
+                    {
+                        <p>Khách hàng chưa có đơn hàng.</p>
+                    }
+                    @foreach (var order in Model.CustomerOrders)
+                    {
+                        <details class="order-card">
+                            <summary>
+                                @order.OrderCode · @Display.Money(order.TotalAmount) · @Display.PaymentStatus(order.PaymentStatus)
+                            </summary>
+                            <p>@Display.Date(order.CreatedAt) · @Display.OrderStatus(order.OrderStatus)</p>
+                            <partial name="_OrderDetails" model="order" />
+                        </details>
+                    }
+                </section>
+            }
+        }
+        @if (Model.Tab == "accounts")
+        {
+            <h2>Quản lý tài khoản</h2>
+            <p>
+                Thay đổi vai trò hoặc khóa tài khoản có hiệu lực tại API. Hệ thống bảo vệ tài khoản quản trị cuối cùng.
+            </p>
+            <form method="get" action="/admin" class="filters">
+                <input type="hidden" name="tab" value="accounts" />
+                <label class="field">
+                    Tìm tài khoản
+                    <input name="q" value="@Model.Q" type="search" placeholder="Nhập từ khóa tìm kiếm…" />
+                </label>
+                <button class="button">Tìm kiếm</button>
+                <a class="button secondary" href="/admin?tab=@Model.Tab">Đặt lại</a>
+            </form>
+            <p>@Model.Accounts.TotalCount tài khoản</p>
+            @foreach (var account in Model.Accounts.Items)
+            {
+                <article class="order-card">
+                    <div class="page-heading">
+                        <div>
+                            <h3>@account.FullName</h3>
+                            <p>@account.Email · @account.PhoneNumber</p>
+                        </div>
+                        <span class="badge @(account.IsActive ? "success" : "neutral")">
+                            @(account.IsActive ? "Đang hoạt động" : "Đã khóa")
+                        </span>
+                    </div>
+                    <p>
+                        Ngày tạo: @Display.Date(account.CreatedAt) · Vai trò hiện tại: @string.Join(", ", account.Roles)
+                    </p>
+                    <form
+                        action="/admin/account"
+                        method="post"
+                        class="filters"
+                        data-confirm="Lưu thay đổi vai trò và trạng thái tài khoản này?">
+                        <input
+                            type="hidden"
+                            name="returnUrl"
+                            value="@(Context.Request.Path + Context.Request.QueryString)" />
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@account.Id" />
+                        <label class="field">
+                            Vai trò
+                            <select name="Role">
+                                <option value="Customer" selected="@(!account.Roles.Contains("Admin"))">
+                                    Customer — Khách hàng
+                                </option>
+                                <option value="Admin" selected="@(account.Roles.Contains("Admin"))">Admin — Quản trị viên</option>
+                            </select>
+                        </label>
+                        <label class="field">
+                            <span>
+                                <input type="checkbox" name="IsActive" value="true" checked="@account.IsActive" />
+                                <input type="hidden" name="IsActive" value="false" />
+                                Cho phép hoạt động
+                            </span>
+                        </label>
+                        <button class="button small">Lưu thay đổi</button>
+                    </form>
+                </article>
+            }
 
-<article class="stat-card">
-<span>Doanh thu đã thanh toán</span>
-<strong>@Display.Money(dashboard.Revenue)</strong>
-</article>
-
-<article class="stat-card">
-<span>Đơn chờ xử lý</span>
-<strong>@dashboard.PendingOrders</strong>
-</article>
-
-</div>
-<h3>5 đơn hàng gần nhất</h3>@if (dashboard.RecentOrders.Count == 0) { <div class="empty-state">Chưa có đơn hàng.</div> } else { <div class="table-wrap">
-<table class="data-table">
-<thead>
-<tr>
-<th>Mã đơn</th>
-<th>Khách hàng</th>
-<th>Ngày tạo</th>
-<th>Tổng tiền</th>
-<th>Trạng thái</th>
-</tr>
-</thead>
-<tbody>@foreach (var order in dashboard.RecentOrders) { <tr>
-<td>@order.OrderCode</td>
-<td>@order.CustomerName</td>
-<td>@Display.Date(order.CreatedAt)</td>
-<td>@Display.Money(order.TotalAmount)</td>
-<td>@Display.OrderStatus(order.OrderStatus)</td>
-</tr> }</tbody>
-</table>
-</div> } } }
-@if (Model.Tab == "orders") {
-<h2>Quản lý đơn hàng</h2>
-<form method="get" action="/admin" class="filters">
-<input type="hidden" name="tab" value="orders" />
-<label class="field">Mã đơn hoặc khách hàng<input name="q" value="@Model.Q" />
-</label>
-<label class="field">Trạng thái<select name="status">
-<option value="">Tất cả trạng thái</option>@foreach (var status in Enum.GetValues<OrderStatus>()) { <option value="@status" selected="@(Model.Status == status.ToString())">@Display.OrderStatus(status)</option> }</select>
-</label>
-<button class="button">Lọc đơn hàng</button>
-</form>
-
-<p>@Model.Orders.TotalCount đơn hàng</p>
-@foreach (var order in Model.Orders.Items) { <article class="order-card">
-<div class="page-heading">
-<div>
-<h3>@order.OrderCode · @order.CustomerName</h3>
-<p>@Display.Date(order.CreatedAt) · @Display.Money(order.TotalAmount)</p>
-</div>
-<span class="badge">@Display.PaymentStatus(order.PaymentStatus)</span>
-</div>
-<details>
-<summary>Xem chi tiết đơn hàng</summary>
-<partial name="_OrderDetails" model="order" />
-</details>
-<form action="/admin/order/status" method="post" class="filters">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@order.Id" />
-<label class="field">Trạng thái<select name="Status">@foreach (var status in Display.NextStatuses(order)) { <option value="@status" selected="@(status == order.OrderStatus)">@Display.OrderStatus(status)</option> }</select>
-</label>
-<button class="button small">Cập nhật trạng thái</button>
-</form>
-
-</article>
- }
-@if (Model.Orders.Items.Count == 0 && Model.Error is null) { <div class="empty-state">Chưa có đơn hàng phù hợp.</div> }
-<partial name="_AdminPagination" model="(Model, Model.Orders.TotalPages)" />
-}
-@if (Model.Tab == "products") {
-<h2>Quản lý sản phẩm</h2>
-<form action="/admin" method="get" class="filters">
-<input type="hidden" name="tab" value="products" />
-<label class="field">Tìm sản phẩm<input name="q" value="@Model.Q" />
-</label>
-<button class="button">Tìm kiếm</button>
-<a href="/admin?tab=products#product-form" class="button secondary">Thêm sản phẩm</a>
-</form>
-
-<p>@Model.Products.TotalCount sản phẩm</p>
-<div class="table-wrap">
-<table class="data-table">
-<thead>
-<tr>
-<th>Sản phẩm / SKU</th>
-<th>Danh mục</th>
-<th>Giá</th>
-<th>Tồn kho</th>
-<th>Hiển thị</th>
-<th>Thao tác</th>
-</tr>
-</thead>
-<tbody>@foreach (var product in Model.Products.Items) { <tr>
-<td>
-<strong>@product.Name</strong>
-<p class="product-meta">@product.SKU</p>
-</td>
-<td>@product.CategoryName</td>
-<td>@Display.Money(product.Price)</td>
-<td>@product.StockQuantity</td>
-<td>@(product.IsActive ? "Đang bán" : "Đã ẩn")</td>
-<td>
-<a class="button secondary small" asp-action="Index" asp-route-tab="products" asp-route-q="@Model.Q" asp-route-page="@Model.Page" asp-route-editProductId="@product.Id" asp-fragment="product-form">Sửa</a>@if (product.IsActive) { <form action="/admin/product/hide" method="post" data-confirm="Ẩn sản phẩm này khỏi danh sách bán hàng?">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@product.Id" />
-<button class="button danger small">Ẩn</button>
-</form>
- }</td>
-</tr> }</tbody>
-</table>
-</div>
-<partial name="_AdminPagination" model="(Model, Model.Products.TotalPages)" />
-<section id="product-form" class="summary-card">
-<h3>@(Model.EditProductId.HasValue ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới")</h3>
-<form action="/admin/product" method="post">@Html.AntiForgeryToken()<input name="id" type="hidden" value="@Model.EditProductId" />
-<input asp-for="Product.RowVersion" type="hidden" />
-<div class="form-grid">
-<label class="field">Tên sản phẩm<input asp-for="Product.Name" required maxlength="200" />
-</label>
-<label class="field">Slug<input asp-for="Product.Slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="200" placeholder="laptop-van-phong" />
-</label>
-<label class="field">Mã SKU<input asp-for="Product.SKU" required maxlength="50" />
-</label>
-<label class="field">Danh mục<select asp-for="Product.CategoryId" required>
-<option value="">Chọn danh mục</option>@foreach (var category in Model.Categories) { <option value="@category.Id">@category.Name @(category.IsActive ? "" : "(đã ẩn)")</option> }</select>
-</label>
-<label class="field">Giá bán (VND)<input asp-for="Product.Price" type="number" min="0" max="999999999999" step="0.01" required />
-</label>
-<label class="field">Tồn kho<input asp-for="Product.StockQuantity" type="number" min="0" max="1000000" required />
-</label>
-<label class="field full-width">Đường dẫn ảnh<input asp-for="Product.ImageUrl" required maxlength="500" />
-</label>
-<label class="field full-width">Mô tả<textarea asp-for="Product.Description" required maxlength="4000" rows="3">
-</textarea>
-</label>
-<label class="field">
-<span>
-<input asp-for="Product.IsActive" /> Đang bán</span>
-</label>
-<div class="full-width">
-<button class="button">Lưu sản phẩm</button>
-<a class="button secondary" href="/admin?tab=products#product-form">Hủy / tạo mới</a>
-</div>
-</div>
-</form>
-
-</section>
-
-<section class="summary-card">
-<h3>Danh mục sản phẩm</h3>
-<div class="table-wrap">
-<table class="data-table">
-<thead>
-<tr>
-<th>Tên</th>
-<th>Slug</th>
-<th>Trạng thái</th>
-<th>Thao tác</th>
-</tr>
-</thead>
-<tbody>@foreach (var category in Model.Categories) { <tr>
-<td>@category.Name</td>
-<td>@category.Slug</td>
-<td>@(category.IsActive ? "Hiển thị" : "Đã ẩn")</td>
-<td>
-<a class="button secondary small" asp-action="Index" asp-route-tab="products" asp-route-editCategoryId="@category.Id" asp-fragment="category-form">Sửa</a>@if (category.IsActive) { <form action="/admin/category/hide" method="post" data-confirm="Ẩn danh mục này?">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@category.Id" />
-<button class="button danger small">Ẩn</button>
-</form>
- }</td>
-</tr> }</tbody>
-</table>
-</div>
-<form id="category-form" action="/admin/category" method="post">@Html.AntiForgeryToken()<h4>@(Model.EditCategoryId.HasValue ? "Sửa danh mục" : "Thêm danh mục")</h4>
-<input name="id" type="hidden" value="@Model.EditCategoryId" />
-<div class="form-grid">
-<label class="field">Tên danh mục<input asp-for="Category.Name" required maxlength="100" />
-</label>
-<label class="field">Slug<input asp-for="Category.Slug" required maxlength="100" pattern="[a-z0-9]+(-[a-z0-9]+)*" />
-</label>
-<label class="field full-width">Mô tả<textarea asp-for="Category.Description" maxlength="1000" rows="2">
-</textarea>
-</label>
-<label class="field">
-<span>
-<input asp-for="Category.IsActive" /> Hiển thị</span>
-</label>
-<div class="full-width">
-<button class="button">Lưu danh mục</button>
-<a class="button secondary" href="/admin?tab=products#category-form">Hủy / tạo mới</a>
-</div>
-</div>
-</form>
-
-</section>
-
-}
-@if (Model.Tab == "customers") {
-<h2>Quản lý khách hàng</h2>
-<form method="get" action="/admin" class="filters">
-<input type="hidden" name="tab" value="customers" />
-<label class="field">Họ tên hoặc email<input name="q" value="@Model.Q" />
-</label>
-<button class="button">Tìm kiếm</button>
-</form>
-
-<p>@Model.Customers.TotalCount khách hàng</p>
-@foreach (var customer in Model.Customers.Items) { <article class="order-card">
-<div class="page-heading">
-<div>
-<h3>@customer.FullName</h3>
-<p>@customer.Email · @customer.PhoneNumber</p>
-</div>
-<span class="badge">@(customer.IsActive ? "Đang hoạt động" : "Đã khóa")</span>
-</div>
-<p>Ngày tạo: @Display.Date(customer.CreatedAt) · @customer.OrderCount đơn hàng · Tổng chi tiêu: <strong>@Display.Money(customer.TotalSpent)</strong>
-</p>
-<details>
-<summary>Sửa hồ sơ khách hàng</summary>
-<form action="/admin/customer" method="post" class="form-grid">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@customer.Id" />
-<label class="field">Họ tên<input name="FullName" value="@customer.FullName" required minlength="2" maxlength="100" />
-</label>
-<label class="field">Số điện thoại<input type="tel" name="PhoneNumber" value="@customer.PhoneNumber" required maxlength="20" />
-</label>
-<div class="full-width">
-<button class="button small">Lưu hồ sơ</button>
-</div>
-</form>
-
-</details>
-<a class="button secondary small" asp-action="Index" asp-route-tab="customers" asp-route-page="@Model.Page" asp-route-q="@Model.Q" asp-route-customerId="@customer.Id" asp-fragment="customer-orders">Xem lịch sử mua hàng</a>
-</article>
- }
-@if (Model.Customers.Items.Count == 0 && Model.Error is null) { <div class="empty-state">Chưa có khách hàng phù hợp.</div> }
-<partial name="_AdminPagination" model="(Model, Model.Customers.TotalPages)" />
-@if (Model.CustomerOrders is not null) { <section id="customer-orders" class="summary-card">
-<h3>Lịch sử mua hàng của khách hàng</h3>@if (Model.CustomerOrders.Count == 0) { <p>Khách hàng chưa có đơn hàng.</p> }@foreach (var order in Model.CustomerOrders) { <details class="order-card">
-<summary>@order.OrderCode · @Display.Money(order.TotalAmount) · @Display.PaymentStatus(order.PaymentStatus)</summary>
-<p>@Display.Date(order.CreatedAt) · @Display.OrderStatus(order.OrderStatus)</p>
-<partial name="_OrderDetails" model="order" />
-</details> }</section>
- }
-}
-@if (Model.Tab == "accounts") {
-<h2>Quản lý tài khoản</h2>
-<p>Thay đổi vai trò hoặc khóa tài khoản có hiệu lực tại API. Hệ thống bảo vệ tài khoản quản trị cuối cùng.</p>
-<form method="get" action="/admin" class="filters">
-<input type="hidden" name="tab" value="accounts" />
-<label class="field">Tìm tài khoản<input name="q" value="@Model.Q" />
-</label>
-<button class="button">Tìm kiếm</button>
-</form>
-
-<p>@Model.Accounts.TotalCount tài khoản</p>
-@foreach (var account in Model.Accounts.Items) { <article class="order-card">
-<div class="page-heading">
-<div>
-<h3>@account.FullName</h3>
-<p>@account.Email · @account.PhoneNumber</p>
-</div>
-<span class="badge">@(account.IsActive ? "Đang hoạt động" : "Đã khóa")</span>
-</div>
-<p>Ngày tạo: @Display.Date(account.CreatedAt) · Vai trò hiện tại: @string.Join(", ", account.Roles)</p>
-<form action="/admin/account" method="post" class="filters">@Html.AntiForgeryToken()<input type="hidden" name="id" value="@account.Id" />
-<label class="field">Vai trò<select name="Role">
-<option value="Customer" selected="@(!account.Roles.Contains("Admin"))">Customer — Khách hàng</option>
-<option value="Admin" selected="@(account.Roles.Contains("Admin"))">Admin — Quản trị viên</option>
-</select>
-</label>
-<label class="field">
-<span>
-<input type="checkbox" name="IsActive" value="true" checked="@account.IsActive" />
-<input type="hidden" name="IsActive" value="false" /> Cho phép hoạt động</span>
-</label>
-<button class="button small">Lưu thay đổi</button>
-</form>
-
-</article>
- }
-@if (Model.Accounts.Items.Count == 0 && Model.Error is null) { <div class="empty-state">Chưa có tài khoản phù hợp.</div> }
-<partial name="_AdminPagination" model="(Model, Model.Accounts.TotalPages)" />
-}
-</section>
-
+            @if (Model.Accounts.Items.Count == 0 && Model.Error is null)
+            {
+                <div class="empty-state">Chưa có tài khoản phù hợp.</div>
+            }
+            <partial name="_AdminPagination" model="(Model, Model.Accounts.TotalPages)" />
+        }
+    </section>
 </div>

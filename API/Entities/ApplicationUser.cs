@@ -1,5 +1,6 @@
-using Microsoft.AspNetCore.Identity;
 using ElectroShop.Contracts.Enums;
+using Microsoft.AspNetCore.Identity;
+
 namespace ElectroShop.Api.Entities;
 
 public class ApplicationUser : IdentityUser

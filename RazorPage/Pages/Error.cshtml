@@ -1,4 +1,14 @@
 @page
 @model ErrorModel
-@{ViewData["Title"]="Không thể xử lý yêu cầu";}
-<section class="empty-state"><h1>Không thể xử lý yêu cầu</h1><p>Đã có lỗi khi xử lý thao tác. Vui lòng thử lại sau.</p>@if(Model.ShowRequestId){<p>Mã hỗ trợ: <code>@Model.RequestId</code></p>}<a class="button" href="/">Về trang chủ</a></section>
+@{
+    ViewData["Title"] = "Không thể xử lý yêu cầu";
+}
+<section class="empty-state">
+    <h1>Không thể xử lý yêu cầu</h1>
+    <p>Đã có lỗi khi xử lý thao tác. Vui lòng thử lại sau.</p>
+    @if (Model.ShowRequestId)
+    {
+        <p>Mã hỗ trợ: <code>@Model.RequestId</code></p>
+    }
+    <a class="button" href="/">Về trang chủ</a>
+</section>

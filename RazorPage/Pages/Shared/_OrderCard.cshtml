@@ -1,2 +1,47 @@
 @model OrderDto
-<article class="order-card"><div class="order-meta"><div><strong>@Model.OrderCode</strong><p>@Model.CreatedAt.ToOffset(TimeSpan.FromHours(7)).ToString("dd/MM/yyyy HH:mm")</p></div><span class="badge">Đơn: @ShopPageModel.OrderState(Model.OrderStatus)</span><span class="badge">Thanh toán: @ShopPageModel.PaymentState(Model.PaymentStatus)</span><strong>@ShopPageModel.Vnd(Model.TotalAmount)</strong></div><details><summary>Chi tiết đơn hàng</summary><p>Người nhận: @Model.ReceiverName · @Model.ReceiverPhone</p><p>Địa chỉ: @Model.ShippingAddress</p>@if(!string.IsNullOrWhiteSpace(Model.Note)){<p>Ghi chú: @Model.Note</p>}<div class="table-wrap"><table class="data-table"><thead><tr><th>Sản phẩm</th><th>SKU</th><th>Đơn giá khi mua</th><th>Số lượng</th><th>Thành tiền</th></tr></thead><tbody>@foreach(var item in Model.Items){<tr><td>@item.ProductName</td><td>@item.ProductSKU</td><td>@ShopPageModel.Vnd(item.UnitPrice)</td><td>@item.Quantity</td><td>@ShopPageModel.Vnd(item.LineTotal)</td></tr>}</tbody></table></div></details></article>
+
+<article class="order-card">
+    <div class="order-meta">
+        <div>
+            <strong>@Model.OrderCode</strong>
+            <p>@Model.CreatedAt.ToOffset(TimeSpan.FromHours(7)).ToString("dd/MM/yyyy HH:mm")</p>
+        </div>
+        <span class="badge">Đơn: @ShopPageModel.OrderState(Model.OrderStatus)</span>
+        <span class="badge">Thanh toán: @ShopPageModel.PaymentState(Model.PaymentStatus)</span>
+        <strong>@ShopPageModel.Vnd(Model.TotalAmount)</strong>
+    </div>
+    <details>
+        <summary>Chi tiết đơn hàng</summary>
+        <p>Người nhận: @Model.ReceiverName · @Model.ReceiverPhone</p>
+        <p>Địa chỉ: @Model.ShippingAddress</p>
+        @if (!string.IsNullOrWhiteSpace(Model.Note))
+        {
+            <p>Ghi chú: @Model.Note</p>
+        }
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>SKU</th>
+                        <th>Đơn giá khi mua</th>
+                        <th>Số lượng</th>
+                        <th>Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>@item.ProductName</td>
+                            <td>@item.ProductSKU</td>
+                            <td>@ShopPageModel.Vnd(item.UnitPrice)</td>
+                            <td>@item.Quantity</td>
+                            <td>@ShopPageModel.Vnd(item.LineTotal)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </details>
+</article>

@@ -2,9 +2,16 @@ namespace ElectroShop.Contracts.Enums;
 
 public enum OrderStatus
 {
-    Pending, Confirmed, Shipping, Completed, Cancelled
+    Pending,
+    Confirmed,
+    Shipping,
+    Completed,
+    Cancelled,
 }
+
 public enum PaymentStatus
 {
-    Pending, Success, Failed
+    Pending,
+    Success,
+    Failed,
 }

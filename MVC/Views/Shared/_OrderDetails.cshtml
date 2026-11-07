@@ -1,37 +1,45 @@
 @model OrderDto
+
 <div class="order-meta">
-<p>
-<strong>Người nhận:</strong> @Model.ReceiverName · @Model.ReceiverPhone</p>
-<p>
-<strong>Địa chỉ:</strong> @Model.ShippingAddress</p>@if (!string.IsNullOrWhiteSpace(Model.Note)) { <p>
-<strong>Ghi chú:</strong> @Model.Note</p> }</div>
+    <p><strong>Người nhận:</strong> @Model.ReceiverName · @Model.ReceiverPhone</p>
+    <p><strong>Địa chỉ:</strong> @Model.ShippingAddress</p>
+    @if (!string.IsNullOrWhiteSpace(Model.Note))
+    {
+        <p><strong>Ghi chú:</strong> @Model.Note</p>
+    }
+</div>
 <div class="table-wrap">
-<table class="data-table">
-<thead>
-<tr>
-<th>Sản phẩm</th>
-<th>Mã SKU</th>
-<th>Giá lúc mua</th>
-<th>Số lượng</th>
-<th>Thành tiền</th>
-</tr>
-</thead>
-<tbody>@foreach (var item in Model.Items) { <tr>
-<td>@item.ProductName</td>
-<td>@item.ProductSKU</td>
-<td>@Display.Money(item.UnitPrice)</td>
-<td>@item.Quantity</td>
-<td>@Display.Money(item.LineTotal)</td>
-</tr> }</tbody>
-<tfoot>
-<tr>
-<td colspan="4">
-<strong>Tổng tiền</strong>
-</td>
-<td>
-<strong>@Display.Money(Model.TotalAmount)</strong>
-</td>
-</tr>
-</tfoot>
-</table>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Mã SKU</th>
+                <th>Giá lúc mua</th>
+                <th>Số lượng</th>
+                <th>Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.ProductName</td>
+                    <td>@item.ProductSKU</td>
+                    <td>@Display.Money(item.UnitPrice)</td>
+                    <td>@item.Quantity</td>
+                    <td>@Display.Money(item.LineTotal)</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4">
+                    <strong>Tổng tiền</strong>
+                </td>
+                <td>
+                    <strong>@Display.Money(Model.TotalAmount)</strong>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
 </div>

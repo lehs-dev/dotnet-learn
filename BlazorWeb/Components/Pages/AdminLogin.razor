@@ -1,10 +1,13 @@
 @page "/admin/login"
 @inject AuthenticationStateProvider AuthState
+
 <PageTitle>Đăng nhập quản trị | ElectroShop</PageTitle>
 <section class="auth-page">
     <span class="eyebrow">KHU VỰC QUẢN TRỊ</span>
     <h1>Đăng nhập quản trị</h1>
-    <p>Trang này chỉ dành cho tài khoản quản trị riêng của ElectroShop. Tài khoản khách hàng đăng nhập ở trang chủ và không dùng chung cổng này.</p>
+    <p>
+        Trang này chỉ dành cho tài khoản quản trị riêng của ElectroShop. Tài khoản khách hàng đăng nhập ở trang chủ và không dùng chung cổng này.
+    </p>
     @if (!string.IsNullOrWhiteSpace(Error))
     {
         <div class="alert error" role="alert">@Error</div>
@@ -15,21 +18,40 @@
     }
     @if (isCustomer)
     {
-        <div class="alert error" role="alert">Bạn đang đăng nhập bằng tài khoản khách hàng. Hãy đăng xuất trước, rồi đăng nhập bằng tài khoản quản trị.</div>
+        <div class="alert error" role="alert">
+            Bạn đang đăng nhập bằng tài khoản khách hàng. Hãy đăng xuất trước, rồi đăng nhập bằng tài khoản quản trị.
+        </div>
     }
     <form method="post" action="/auth/admin/login" data-enhance="false" class="auth-form">
         <AntiforgeryToken />
-        <div class="field"><label for="admin-email">Email quản trị</label><input id="admin-email" type="email" name="Email" required autocomplete="username" /></div>
-        <div class="field"><label for="admin-password">Mật khẩu</label><input id="admin-password" type="password" name="Password" required autocomplete="current-password" /></div>
+        <div class="field">
+            <label for="admin-email">Email quản trị</label>
+            <input id="admin-email" type="email" name="Email" required autocomplete="username" />
+        </div>
+        <div class="field">
+            <label for="admin-password">Mật khẩu</label>
+            <input
+                id="admin-password"
+                type="password"
+                name="Password"
+                required
+                autocomplete="current-password" />
+        </div>
         <button class="button full-width" type="submit">Vào khu vực quản trị</button>
     </form>
     <p><a href="/">← Về trang chủ cửa hàng</a></p>
 </section>
-@code {
-    [SupplyParameterFromQuery(Name = "error")] public string? Error { get; set; }
-    [SupplyParameterFromQuery(Name = "denied")] public string? DeniedRaw { get; set; }
+
+@code
+{
+    [SupplyParameterFromQuery(Name = "error")]
+    public string? Error { get; set; }
+
+    [SupplyParameterFromQuery(Name = "denied")]
+    public string? DeniedRaw { get; set; }
     private bool Denied => DeniedRaw is not null;
     private bool isCustomer;
+
     protected override async Task OnInitializedAsync()
     {
         var state = await AuthState.GetAuthenticationStateAsync();

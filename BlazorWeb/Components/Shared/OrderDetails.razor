@@ -1,20 +1,53 @@
 <div class="order-card">
-    <div class="order-meta"><strong>@Order.OrderCode</strong><span>@Display.Date(Order.CreatedAt)</span><span class="badge">@Display.Order(Order.OrderStatus)</span><span class="badge">Thanh toán: @Display.Payment(Order.PaymentStatus)</span></div>
+    <div class="order-meta">
+        <strong>@Order.OrderCode</strong>
+        <span>@Display.Date(Order.CreatedAt)</span>
+        <span class="badge">@Display.Order(Order.OrderStatus)</span>
+        <span class="badge">Thanh toán: @Display.Payment(Order.PaymentStatus)</span>
+    </div>
     <details>
         <summary>Xem chi tiết · @Display.Money(Order.TotalAmount)</summary>
-        <div class="table-wrap"><table class="data-table"><thead><tr><th>Sản phẩm</th><th>Mã SKU</th><th>Đơn giá</th><th>Số lượng</th><th>Thành tiền</th></tr></thead><tbody>
-            @foreach (var item in Order.Items)
-            {
-                <tr><td>@item.ProductName</td><td>@item.ProductSKU</td><td>@Display.Money(item.UnitPrice)</td><td>@item.Quantity</td><td>@Display.Money(item.LineTotal)</td></tr>
-            }
-        </tbody></table></div>
-        <p><strong>Người nhận:</strong> @Order.ReceiverName · @Order.ReceiverPhone</p><p><strong>Địa chỉ:</strong> @Order.ShippingAddress</p>
-        @if (!string.IsNullOrWhiteSpace(Order.Note)) { <p><strong>Ghi chú:</strong> @Order.Note</p> }
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Mã SKU</th>
+                        <th>Đơn giá</th>
+                        <th>Số lượng</th>
+                        <th>Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Order.Items)
+                    {
+                        <tr>
+                            <td>@item.ProductName</td>
+                            <td>@item.ProductSKU</td>
+                            <td>@Display.Money(item.UnitPrice)</td>
+                            <td>@item.Quantity</td>
+                            <td>@Display.Money(item.LineTotal)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <p><strong>Người nhận:</strong> @Order.ReceiverName · @Order.ReceiverPhone</p>
+        <p><strong>Địa chỉ:</strong> @Order.ShippingAddress</p>
+        @if (!string.IsNullOrWhiteSpace(Order.Note))
+        {
+            <p><strong>Ghi chú:</strong> @Order.Note</p>
+        }
         <p><strong>Tổng cộng: @Display.Money(Order.TotalAmount)</strong></p>
         @ChildContent
     </details>
 </div>
-@code {
-    [Parameter, EditorRequired] public OrderDto Order { get; set; } = default!;
-    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+@code
+{
+    [Parameter, EditorRequired]
+    public OrderDto Order { get; set; } = default!;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
 }

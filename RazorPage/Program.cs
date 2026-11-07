@@ -1,28 +1,75 @@
 using ElectroShop.RazorPages.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseStaticWebAssets();
-builder.Services.AddRazorPages().AddMvcOptions(o => o.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true).AddCookieTempDataProvider(o => o.Cookie.Name = "ElectroShop.RazorPages.TempData");
+builder
+    .Services.AddRazorPages()
+    .AddMvcOptions(o => o.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true)
+    .AddCookieTempDataProvider(o => o.Cookie.Name = "ElectroShop.RazorPages.TempData");
 builder.Services.AddAntiforgery(o => o.Cookie.Name = "ElectroShop.RazorPages.Antiforgery");
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<TokenStore>();
-builder.Services.AddHttpClient<ShopApiClient>(http => { http.BaseAddress = new Uri(builder.Configuration["Api:BaseUrl"] ?? "http://localhost:5100"); http.Timeout = TimeSpan.FromSeconds(25); });
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+builder.Services.AddHttpClient<ShopApiClient>(http =>
 {
-    options.Cookie.Name = "ElectroShop.RazorPages";
-    options.Cookie.HttpOnly = true;
-    options.Cookie.SameSite = SameSiteMode.Lax;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-    options.ExpireTimeSpan = TimeSpan.FromHours(1);
-    options.SlidingExpiration = false;
-    // Khu vực /admin có cổng đăng nhập quản trị riêng; phần còn lại dùng popup khách hàng ở trang chủ.
-    options.Events.OnRedirectToLogin = ctx => { ctx.Response.Redirect(ctx.HttpContext.Request.Path.StartsWithSegments("/admin") ? "/admin/login" : "/?login=1"); return Task.CompletedTask; };
-    options.Events.OnRedirectToAccessDenied = ctx => { ctx.Response.Redirect(ctx.HttpContext.Request.Path.StartsWithSegments("/admin") ? "/admin/login?denied=1" : "/?denied=1"); return Task.CompletedTask; };
-    options.Events.OnValidatePrincipal = async ctx => { if (ctx.HttpContext.RequestServices.GetRequiredService<TokenStore>().Get(ctx.Principal?.FindFirst("session")?.Value) is null) { ctx.RejectPrincipal(); await Microsoft.AspNetCore.Authentication.AuthenticationHttpContextExtensions.SignOutAsync(ctx.HttpContext); } };
+    http.BaseAddress = new Uri(builder.Configuration["Api:BaseUrl"] ?? "http://localhost:5100");
+    http.Timeout = TimeSpan.FromSeconds(25);
 });
+builder
+    .Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "ElectroShop.RazorPages";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.ExpireTimeSpan = TimeSpan.FromHours(1);
+        options.SlidingExpiration = false;
+        // Khu vực /admin có cổng đăng nhập quản trị riêng; phần còn lại dùng popup khách hàng ở trang chủ.
+        options.Events.OnRedirectToLogin = ctx =>
+        {
+            var returnUrl = HttpMethods.IsGet(ctx.Request.Method)
+                ? ctx.Request.Path + ctx.Request.QueryString
+                : "/cart";
+            ctx.Response.Redirect(
+                ctx.Request.Path.StartsWithSegments("/admin")
+                    ? "/admin/login"
+                    : "/?login=1&ReturnUrl=" + Uri.EscapeDataString(returnUrl)
+            );
+            return Task.CompletedTask;
+        };
+        options.Events.OnRedirectToAccessDenied = ctx =>
+        {
+            ctx.Response.Redirect(
+                ctx.HttpContext.Request.Path.StartsWithSegments("/admin")
+                    ? "/admin/login?denied=1"
+                    : "/?denied=1"
+            );
+            return Task.CompletedTask;
+        };
+        options.Events.OnValidatePrincipal = async ctx =>
+        {
+            if (
+                ctx
+                    .HttpContext.RequestServices.GetRequiredService<TokenStore>()
+                    .Get(ctx.Principal?.FindFirst("session")?.Value)
+                is null
+            )
+            {
+                ctx.RejectPrincipal();
+                await Microsoft.AspNetCore.Authentication.AuthenticationHttpContextExtensions.SignOutAsync(
+                    ctx.HttpContext
+                );
+            }
+        };
+    });
 builder.Services.AddAuthorization();
 var app = builder.Build();
-if (!app.Environment.IsDevelopment()) { app.UseExceptionHandler("/Error"); app.UseHsts(); }
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
+}
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();

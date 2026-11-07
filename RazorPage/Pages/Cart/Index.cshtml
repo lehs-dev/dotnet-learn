@@ -4,9 +4,11 @@
     ViewData["Title"] = "Giỏ hàng";
 }
 <div class="page-heading">
-    <div><span class="eyebrow">MUA SẮM CỦA BẠN</span>
+    <div>
+        <span class="eyebrow">MUA SẮM CỦA BẠN</span>
         <h1>Giỏ hàng</h1>
-    </div><a class="button secondary" href="/">Tiếp tục mua sắm</a>
+    </div>
+    <a class="button secondary" href="/">Tiếp tục mua sắm</a>
 </div>
 @if (Model.Error is not null)
 {
@@ -14,9 +16,7 @@
 }
 else if (Model.Cart?.Items.Count > 0)
 {
-
-    <div
-        class="cart-layout">
+    <div class="cart-layout">
         <div class="table-wrap">
             <table class="data-table">
                 <thead>
@@ -28,47 +28,73 @@ else if (Model.Cart?.Items.Count > 0)
                         <th></th>
                     </tr>
                 </thead>
-                <tbody>@foreach(var item in Model.Cart.Items){
-                    <tr>
-                        <td><a href="/products/@item.Slug"><img src="@item.ImageUrl" alt=""
-                                                                    width="64" /><strong>@item.Name</strong></a>@if(!item.IsActive||item.StockQuantity<item.Quantity){
-                            <p class="alert error">Sản phẩm tạm ẩn hoặc không đủ tồn kho.</p>
-                        }
-                    </td>
-                    <td>@ShopPageModel.Vnd(item.UnitPrice)</td>
-                    <td>
-                        <form method="post" asp-page-handler="Update" class="card-actions"><input type="hidden"
-                                                                                                      name="productId" value="@item.ProductId" /><input type="number" name="quantity"
-                                                                              value="@item.Quantity" min="1" max="@(Math.Max(1, item.StockQuantity))"
-                                                                              class="quantity-input" aria-label="Số lượng @item.Name" /><button
-                            class="button secondary small">Cập nhật</button></form>
-                        </td>
-                        <td>@ShopPageModel.Vnd(item.LineTotal)</td>
-                        <td>
-                            <form method="post" asp-page-handler="Remove"><input type="hidden" name="productId"
-                                                                                     value="@item.ProductId" /><button class="button danger small">Xóa</button></form>
+                <tbody>
+                    @foreach (var item in Model.Cart.Items)
+                    {
+                        <tr>
+                            <td>
+                                <a href="/products/@item.Slug">
+                                    <img src="@item.ImageUrl" alt="" width="64" />
+                                    <strong>@item.Name</strong>
+                                </a>
+                                @if (!item.IsActive || item.StockQuantity < item.Quantity)
+                                {
+                                    <p class="alert error">Sản phẩm tạm ẩn hoặc không đủ tồn kho.</p>
+                                }
+                            </td>
+                            <td>@ShopPageModel.Vnd(item.UnitPrice)</td>
+                            <td>
+                                <form method="post" asp-page-handler="Update" class="card-actions">
+                                    <input type="hidden" name="productId" value="@item.ProductId" />
+                                    <input
+                                        type="number"
+                                        name="quantity"
+                                        value="@item.Quantity"
+                                        min="1"
+                                        max="@(Math.Max(1, Math.Min(999, item.StockQuantity)))"
+                                        class="quantity-input"
+                                        aria-label="Số lượng @item.Name" />
+                                    <button class="button secondary small">Cập nhật</button>
+                                </form>
+                            </td>
+                            <td>@ShopPageModel.Vnd(item.LineTotal)</td>
+                            <td>
+                                <form method="post" asp-page-handler="Remove">
+                                    <input type="hidden" name="productId" value="@item.ProductId" />
+                                    <button class="button danger small">Xóa</button>
+                                </form>
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
-            <form method="post" asp-page-handler="Clear"><button class="button secondary small">Xóa toàn bộ giỏ</button>
+            <form method="post" asp-page-handler="Clear" data-confirm="Xóa toàn bộ sản phẩm trong giỏ hàng?">
+                <button class="button secondary small">Xóa toàn bộ giỏ</button>
             </form>
         </div>
         <aside class="summary-card">
             <h2>Tổng giỏ hàng</h2>
             <p>@Model.Cart.Items.Sum(x => x.Quantity) sản phẩm</p>
-            <p class="product-price">@ShopPageModel.Vnd(Model.Cart.TotalAmount)</p><a class="button full-width"
-                                                                                      href="/checkout">Tiến hành thanh toán</a>
+            <p class="product-price">@ShopPageModel.Vnd(Model.Cart.TotalAmount)</p>
+            @if (Model.Cart.Items.Any(x => !x.IsActive || x.Quantity > x.StockQuantity))
+            {
+                <div class="alert error" role="alert">
+                    Có sản phẩm ngừng bán hoặc vượt tồn kho. Vui lòng cập nhật giỏ hàng trước khi thanh toán.
+                </div>
+            }
+            else
+            {
+                <a class="button full-width" href="/checkout">Tiến hành thanh toán</a>
+            }
             <p class="product-meta">Thanh toán sandbox, không chuyển tiền thật.</p>
         </aside>
     </div>
 }
 else
 {
-
     <div class="empty-state">
         <h2>Giỏ hàng đang trống</h2>
-        <p>Khám phá sản phẩm và chọn thiết bị bạn yêu thích.</p><a class="button" href="/">Khám phá sản phẩm</a>
+        <p>Khám phá sản phẩm và chọn thiết bị bạn yêu thích.</p>
+        <a class="button" href="/">Khám phá sản phẩm</a>
     </div>
 }

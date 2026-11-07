@@ -1,10 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 340" role="img" aria-label="Ugreen Hub 6-in-1">
-<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dcfce7"/><stop offset="1" stop-color="#f8fafc"/></linearGradient></defs>
-<rect width="440" height="340" fill="url(#bg)"/>
-<circle cx="392" cy="36" r="70" fill="#15803d" opacity="0.10"/>
-<circle cx="30" cy="316" r="56" fill="#15803d" opacity="0.10"/>
-<ellipse cx="220" cy="292" rx="140" ry="10" fill="#1a3550" opacity="0.10"/>
-<rect x="86" y="128" width="268" height="96" rx="18" fill="#243e60"/><rect x="86" y="128" width="268" height="96" rx="18" fill="#15803d" opacity="0.20"/><rect x="118" y="188" width="30" height="18" rx="4" fill="#15803d"/><rect x="162" y="188" width="30" height="18" rx="4" fill="#15803d"/><rect x="206" y="188" width="30" height="18" rx="4" fill="#15803d"/><rect x="250" y="188" width="30" height="18" rx="4" fill="#15803d"/><rect x="294" y="188" width="30" height="18" rx="4" fill="#15803d"/><path d="M354 158 C 402 150, 402 96, 356 92" fill="none" stroke="#243e60" stroke-width="10" stroke-linecap="round"/><rect x="110" y="150" width="90" height="12" rx="6" fill="#ffffff" opacity="0.5"/>
-<rect x="24" y="298" width="179" height="28" rx="14" fill="#15803d"/>
-<text x="40" y="318" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#ffffff">Ugreen Hub 6-in-1</text>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#dcfce7"/>
+      <stop offset="1" stop-color="#f8fafc"/>
+    </linearGradient>
+  </defs>
+  <rect width="440" height="340" fill="url(#bg)"/>
+  <circle cx="392" cy="36" r="70" fill="#15803d" opacity="0.10"/>
+  <circle cx="30" cy="316" r="56" fill="#15803d" opacity="0.10"/>
+  <ellipse cx="220" cy="292" rx="140" ry="10" fill="#1a3550" opacity="0.10"/>
+  <rect x="86" y="128" width="268" height="96" rx="18" fill="#243e60"/>
+  <rect x="86" y="128" width="268" height="96" rx="18" fill="#15803d" opacity="0.20"/>
+  <rect x="118" y="188" width="30" height="18" rx="4" fill="#15803d"/>
+  <rect x="162" y="188" width="30" height="18" rx="4" fill="#15803d"/>
+  <rect x="206" y="188" width="30" height="18" rx="4" fill="#15803d"/>
+  <rect x="250" y="188" width="30" height="18" rx="4" fill="#15803d"/>
+  <rect x="294" y="188" width="30" height="18" rx="4" fill="#15803d"/>
+  <path d="M354 158 C 402 150, 402 96, 356 92" fill="none" stroke="#243e60" stroke-width="10" stroke-linecap="round"/>
+  <rect x="110" y="150" width="90" height="12" rx="6" fill="#ffffff" opacity="0.5"/>
+  <rect x="24" y="298" width="179" height="28" rx="14" fill="#15803d"/>
+  <text x="40" y="318" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#ffffff">Ugreen Hub 6-in-1</text>
 </svg>

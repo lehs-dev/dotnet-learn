@@ -1,61 +1,185 @@
 @page "/cart"
 @attribute [Authorize]
 @inject ShopApiClient Api
+
 <PageTitle>Giỏ hàng | ElectroShop</PageTitle>
-<div class="page-heading"><div><span class="eyebrow">MUA SẮM CỦA BẠN</span><h1>Giỏ hàng</h1></div><a href="/">Tiếp tục mua sắm →</a></div>
-@if (error is not null) { <div class="alert error" role="alert">@error</div> }
-@if (message is not null) { <div class="alert success" role="status">@message</div> }
-@if (loading) { <p class="loading">Đang tải giỏ hàng…</p> }
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">MUA SẮM CỦA BẠN</span>
+        <h1>Giỏ hàng</h1>
+    </div>
+    <a href="/">Tiếp tục mua sắm →</a>
+</div>
+@if (error is not null)
+{
+    <div class="alert error" role="alert">@error</div>
+}
+@if (message is not null)
+{
+    <div class="alert success" role="status">@message</div>
+}
+@if (loading)
+{
+    <p class="loading">Đang tải giỏ hàng…</p>
+}
 else if (cart is not null && cart.Items.Count == 0)
 {
-    <div class="empty-state"><h2>Giỏ hàng đang trống</h2><p>Khám phá thiết bị công nghệ và chọn sản phẩm yêu thích.</p><a class="button" href="/">Khám phá sản phẩm</a></div>
+    <div class="empty-state">
+        <h2>Giỏ hàng đang trống</h2>
+        <p>Khám phá thiết bị công nghệ và chọn sản phẩm yêu thích.</p>
+        <a class="button" href="/">Khám phá sản phẩm</a>
+    </div>
 }
 else if (cart is not null)
 {
     <div class="cart-layout">
-        <div><div class="table-wrap"><table class="data-table"><thead><tr><th>Sản phẩm</th><th>Đơn giá</th><th>Số lượng</th><th>Thành tiền</th><th></th></tr></thead><tbody>
-        @foreach (var item in cart.Items)
-        {
-            <tr><td><a href="/products/@item.Slug"><img src="@item.ImageUrl" alt="" width="60" height="48" /> @item.Name</a><small class="product-meta">@(!item.IsActive ? "Ngừng bán" : $"Tồn kho: {item.StockQuantity}")</small></td><td>@Display.Money(item.UnitPrice)</td>
-                <td><div class="inline-actions"><input type="number" class="quantity-input" aria-label="Số lượng @item.Name" min="1" max="@item.StockQuantity" @bind="quantities[item.ProductId]" /><button class="button secondary small" disabled="@busy" @onclick="() => Update(item.ProductId)">Cập nhật</button></div></td>
-                <td>@Display.Money(item.LineTotal)</td><td><button class="button danger small" disabled="@busy" @onclick="() => Remove(item.ProductId)">Xóa</button></td></tr>
-        }
-        </tbody></table></div><button class="button secondary small" disabled="@busy" @onclick="Clear">Xóa toàn bộ giỏ</button></div>
-        <aside class="summary-card"><h2>Tóm tắt giỏ hàng</h2><p>@cart.Items.Sum(x => x.Quantity) sản phẩm</p><p>Tổng tiền <strong>@Display.Money(cart.TotalAmount)</strong></p><p>Thanh toán sandbox. Không chuyển tiền thật.</p>
-            @if (cart.Items.Any(x => !x.IsActive || x.Quantity > x.StockQuantity)) { <div class="alert error">Có sản phẩm ngừng bán hoặc vượt tồn kho. Vui lòng cập nhật giỏ hàng.</div> }
-            else { <a class="button full-width" href="/checkout">Tiến hành thanh toán →</a> }
+        <div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>Đơn giá</th>
+                            <th>Số lượng</th>
+                            <th>Thành tiền</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in cart.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <a href="/products/@item.Slug">
+                                        <img src="@item.ImageUrl" alt="" width="60" height="48" />
+                                        @item.Name
+                                    </a>
+                                    <small class="product-meta">
+                                        @(!item.IsActive ? "Ngừng bán" : $"Tồn kho: {item.StockQuantity}")
+                                    </small>
+                                </td>
+                                <td>@Display.Money(item.UnitPrice)</td>
+                                <td>
+                                    <div class="inline-actions">
+                                        <input
+                                            type="number"
+                                            class="quantity-input"
+                                            aria-label="Số lượng @item.Name"
+                                            min="1"
+                                            max="@Math.Max(1, Math.Min(999, item.StockQuantity))"
+                                            @bind="quantities[item.ProductId]" />
+                                        <button class="button secondary small" disabled="@busy" @onclick="() => Update(item.ProductId)">
+                                            Cập nhật
+                                        </button>
+                                    </div>
+                                </td>
+                                <td>@Display.Money(item.LineTotal)</td>
+                                <td>
+                                    <button class="button danger small" disabled="@busy" @onclick="() => Remove(item.ProductId)">
+                                        Xóa
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <button class="button secondary small" disabled="@busy" @onclick="Clear">Xóa toàn bộ giỏ</button>
+        </div>
+        <aside class="summary-card">
+            <h2>Tóm tắt giỏ hàng</h2>
+            <p>@cart.Items.Sum(x => x.Quantity) sản phẩm</p>
+            <p>Tổng tiền <strong>@Display.Money(cart.TotalAmount)</strong></p>
+            <p>Thanh toán sandbox. Không chuyển tiền thật.</p>
+            @if (cart.Items.Any(x => !x.IsActive || x.Quantity > x.StockQuantity))
+            {
+                <div class="alert error">Có sản phẩm ngừng bán hoặc vượt tồn kho. Vui lòng cập nhật giỏ hàng.</div>
+            }
+            else
+            {
+                <a class="button full-width" href="/checkout">Tiến hành thanh toán →</a>
+            }
         </aside>
     </div>
 }
-@code {
+
+@code
+{
     private CartDto? cart;
     private readonly Dictionary<int, int> quantities = [];
-    private bool loading = true, busy;
-    private string? error, message;
+    private bool loading = true,
+        busy;
+    private string? error,
+        message;
+
     protected override async Task OnInitializedAsync()
     {
-        try { await Load(); }
-        catch (ApiException ex) { error = ex.Message; }
-        finally { loading = false; }
+        try
+        {
+            await Load();
+        }
+        catch (ApiException ex)
+        {
+            error = ex.Message;
+        }
+        finally
+        {
+            loading = false;
+        }
     }
+
     private async Task Load()
     {
         cart = await Api.GetAsync<CartDto>("api/cart");
-        quantities.Clear(); foreach (var item in cart.Items) quantities[item.ProductId] = item.Quantity;
+        quantities.Clear();
+        foreach (var item in cart.Items)
+            quantities[item.ProductId] = item.Quantity;
     }
+
     private async Task Update(int id)
     {
         var item = cart!.Items.Single(x => x.ProductId == id);
-        if (quantities[id] < 1 || quantities[id] > item.StockQuantity) { error = "Số lượng phải từ 1 và không vượt quá tồn kho."; return; }
-        await Mutate(async () => { await Api.PutAsync($"api/cart/items/{id}", new CartQuantityRequest { ProductId = id, Quantity = quantities[id] }); }, "Đã cập nhật số lượng.");
+        if (quantities[id] < 1 || quantities[id] > Math.Min(999, item.StockQuantity))
+        {
+            error = "Số lượng phải từ 1 và không vượt quá tồn kho.";
+            return;
+        }
+        await Mutate(
+            async () =>
+            {
+                await Api.PutAsync(
+                    $"api/cart/items/{id}",
+                    new CartQuantityRequest { ProductId = id, Quantity = quantities[id] }
+                );
+            },
+            "Đã cập nhật số lượng."
+        );
     }
-    private Task Remove(int id) => Mutate(() => Api.DeleteAsync($"api/cart/items/{id}"), "Đã xóa sản phẩm.");
+
+    private Task Remove(int id) =>
+        Mutate(() => Api.DeleteAsync($"api/cart/items/{id}"), "Đã xóa sản phẩm.");
+
     private Task Clear() => Mutate(() => Api.DeleteAsync("api/cart"), "Đã xóa toàn bộ giỏ hàng.");
+
     private async Task Mutate(Func<Task> action, string success)
     {
-        busy = true; error = message = null;
-        try { await action(); await Load(); message = success; }
-        catch (ApiException ex) { error = ex.Message; }
-        finally { busy = false; }
+        if (busy)
+            return;
+        busy = true;
+        error = message = null;
+        try
+        {
+            await action();
+            await Load();
+            message = success;
+        }
+        catch (ApiException ex)
+        {
+            error = ex.Message;
+        }
+        finally
+        {
+            busy = false;
+        }
     }
 }

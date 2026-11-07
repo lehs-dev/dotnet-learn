@@ -1,2 +1,22 @@
 @model ProductDto
-<article class="product-card"><a class="product-image" href="/products/@Model.Slug"><img src="@Model.ImageUrl" alt="@Model.Name" loading="lazy"/></a><div class="product-info"><span class="product-category">@Model.CategoryName</span><h3 class="product-title"><a href="/products/@Model.Slug">@Model.Name</a></h3><p class="product-price">@ShopPageModel.Vnd(Model.Price)</p><p class="product-meta">@(Model.StockQuantity>0?"Còn hàng":"Hết hàng")</p><div class="card-actions"><a href="/products/@Model.Slug" class="button secondary small">Chi tiết</a><form method="post" asp-page="/Index" asp-page-handler="Add"><input type="hidden" name="productId" value="@Model.Id"/><input type="hidden" name="quantity" value="1"/><input type="hidden" name="returnUrl" value="@(Context.Request.Path+Context.Request.QueryString)"/><button class="button small" disabled="@(Model.StockQuantity<=0)">Thêm vào giỏ</button></form></div></div></article>
+
+<article class="product-card">
+    <a class="product-image" href="/products/@Model.Slug">
+        <img src="@Model.ImageUrl" alt="@Model.Name" loading="lazy"/>
+    </a>
+    <div class="product-info">
+        <span class="product-category">@Model.CategoryName</span>
+        <h3 class="product-title"><a href="/products/@Model.Slug">@Model.Name</a></h3>
+        <p class="product-price">@ShopPageModel.Vnd(Model.Price)</p>
+        <p class="product-meta">@(Model.StockQuantity>0?"Còn hàng":"Hết hàng")</p>
+        <div class="card-actions">
+            <a href="/products/@Model.Slug" class="button secondary small">Chi tiết</a>
+            <form method="post" asp-page="/Index" asp-page-handler="Add">
+                <input type="hidden" name="productId" value="@Model.Id"/>
+                <input type="hidden" name="quantity" value="1"/>
+                <input type="hidden" name="returnUrl" value="@(Context.Request.Path+Context.Request.QueryString)"/>
+                <button class="button small" disabled="@(Model.StockQuantity<=0)">Thêm vào giỏ</button>
+            </form>
+        </div>
+    </div>
+</article>

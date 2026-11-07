@@ -1,6 +1,7 @@
 using ElectroShop.Api.Authentication;
 using ElectroShop.Api.Interfaces;
 using ElectroShop.Api.Services;
+
 namespace ElectroShop.Api.Extensions;
 
 public static class ServiceCollectionExtensions

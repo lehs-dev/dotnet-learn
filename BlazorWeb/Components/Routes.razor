@@ -4,7 +4,11 @@
             <NotAuthorized Context="auth">
                 @if (auth.User.Identity?.IsAuthenticated == true)
                 {
-                    <section class="empty-state"><h1>Không có quyền truy cập</h1><p>Trang này chỉ dành cho quản trị viên.</p><a class="button" href="/">Về trang chủ</a></section>
+                    <section class="empty-state">
+                        <h1>Không có quyền truy cập</h1>
+                        <p>Trang này chỉ dành cho quản trị viên.</p>
+                        <a class="button" href="/">Về trang chủ</a>
+                    </section>
                 }
                 else
                 {

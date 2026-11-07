@@ -1,12 +1,20 @@
 @inject NavigationManager Navigation
+
 <p>Vui lòng đăng nhập để tiếp tục.</p>
-@code {
+
+@code
+{
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
             var path = new Uri(Navigation.Uri).AbsolutePath;
-            Navigation.NavigateTo(path.StartsWith("/admin", StringComparison.OrdinalIgnoreCase) ? "/admin/login" : "/?login=1", forceLoad: true);
+            Navigation.NavigateTo(
+                path.StartsWith("/admin", StringComparison.OrdinalIgnoreCase)
+                    ? "/admin/login"
+                    : "/?login=1",
+                forceLoad: true
+            );
         }
     }
 }

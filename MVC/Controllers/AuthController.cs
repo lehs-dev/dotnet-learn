@@ -5,6 +5,7 @@ using ElectroShop.Mvc.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+
 namespace ElectroShop.Mvc.Controllers;
 
 [Route("auth")]
@@ -18,23 +19,37 @@ public sealed class AuthController(ShopApiClient api, TokenStore tokens) : Contr
         try
         {
             await SignIn(await api.PostAsync<AuthResponse>("api/auth/login", input, ct));
-            return Redirect("/");
+            return LocalRedirect(Destination());
         }
-        catch (ApiException ex) { return AuthError(ex.Message, "login"); }
+        catch (ApiException ex)
+        {
+            return AuthError(ex.Message, "login");
+        }
     }
+
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest input, CancellationToken ct)
     {
         if (!ModelState.IsValid)
-            return AuthError(string.Join(" ", ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage)), "register");
+            return AuthError(
+                string.Join(
+                    " ",
+                    ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage)
+                ),
+                "register"
+            );
         try
         {
             await SignIn(await api.PostAsync<AuthResponse>("api/auth/register", input, ct));
             TempData["Success"] = "Đăng ký thành công. Chào mừng bạn đến ElectroShop!";
-            return Redirect("/");
+            return LocalRedirect(Destination());
         }
-        catch (ApiException ex) { return AuthError(ex.Message, "register"); }
+        catch (ApiException ex)
+        {
+            return AuthError(ex.Message, "register");
+        }
     }
+
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
     {
@@ -42,17 +57,37 @@ public sealed class AuthController(ShopApiClient api, TokenStore tokens) : Contr
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return Redirect("/");
     }
+
     private IActionResult AuthError(string message, string modal)
     {
         TempData["AuthError"] = message;
         TempData["AuthModal"] = modal;
-        return Redirect("/?auth=" + modal);
+        return Redirect("/?auth=" + modal + "&ReturnUrl=" + Uri.EscapeDataString(Destination()));
     }
+
+    private string Destination()
+    {
+        var returnUrl = Request.Form["ReturnUrl"].ToString();
+        return Url.IsLocalUrl(returnUrl) ? returnUrl : "/";
+    }
+
     private async Task SignIn(AuthResponse auth)
     {
         tokens.Remove(User.FindFirst("session_id")?.Value);
-        var claims = new List<Claim> { new(ClaimTypes.NameIdentifier, auth.User.Id), new(ClaimTypes.Name, auth.User.FullName), new(ClaimTypes.Email, auth.User.Email), new("session_id", tokens.Add(auth)) };
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, auth.User.Id),
+            new(ClaimTypes.Name, auth.User.FullName),
+            new(ClaimTypes.Email, auth.User.Email),
+            new("session_id", tokens.Add(auth)),
+        };
         claims.AddRange(auth.User.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme)), new AuthenticationProperties { ExpiresUtc = auth.ExpiresAt, IsPersistent = false });
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(
+                new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme)
+            ),
+            new AuthenticationProperties { ExpiresUtc = auth.ExpiresAt, IsPersistent = false }
+        );
     }
 }

@@ -5,17 +5,28 @@
 using ElectroShop.DatabaseFirst.Models;
 using Microsoft.EntityFrameworkCore;
 
-var connection = Environment.GetEnvironmentVariable("ConnectionStrings__DbFirst")
-    ?? throw new InvalidOperationException("Hãy đặt biến môi trường ConnectionStrings__DbFirst trỏ tới ElectroShopDbFirst.");
+var connection =
+    Environment.GetEnvironmentVariable("ConnectionStrings__DbFirst")
+    ?? throw new InvalidOperationException(
+        "Hãy đặt biến môi trường ConnectionStrings__DbFirst trỏ tới ElectroShopDbFirst."
+    );
 
-var options = new DbContextOptionsBuilder<ElectroShopDbFirstContext>().UseSqlServer(connection).Options;
+var options = new DbContextOptionsBuilder<ElectroShopDbFirstContext>()
+    .UseSqlServer(connection)
+    .Options;
 await using var db = new ElectroShopDbFirstContext(options);
 
 Console.WriteLine("== Database First: dữ liệu đọc bằng entity scaffold từ database có sẵn ==");
-foreach (var category in await db.Categories.Include(c => c.Products).OrderBy(c => c.Id).ToListAsync())
+foreach (
+    var category in await db.Categories.Include(c => c.Products).OrderBy(c => c.Id).ToListAsync()
+)
 {
     Console.WriteLine($"Danh mục {category.Id}: {category.Name} ({category.Slug})");
     foreach (var product in category.Products)
-        Console.WriteLine($"  - {product.Name} | {product.Price:N0} VND | tồn {product.StockQuantity} | {product.ImageUrl}");
+        Console.WriteLine(
+            $"  - {product.Name} | {product.Price:N0} VND | tồn {product.StockQuantity} | {product.ImageUrl}"
+        );
 }
-Console.WriteLine($"Tổng: {await db.Categories.CountAsync()} danh mục, {await db.Products.CountAsync()} sản phẩm.");
+Console.WriteLine(
+    $"Tổng: {await db.Categories.CountAsync()} danh mục, {await db.Products.CountAsync()} sản phẩm."
+);

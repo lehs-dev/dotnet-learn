@@ -1,13 +1,11 @@
-using Microsoft.AspNetCore.Identity;
 using ElectroShop.Contracts.Enums;
+using Microsoft.AspNetCore.Identity;
+
 namespace ElectroShop.Api.Entities;
 
 public class Category
 {
-    public int Id
-    {
-        get; set;
-    }
+    public int Id { get; set; }
     public string Name { get; set; } = "";
     public string Slug { get; set; } = "";
     public string Description { get; set; } = "";

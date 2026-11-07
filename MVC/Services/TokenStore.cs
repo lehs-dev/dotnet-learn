@@ -1,12 +1,14 @@
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using ElectroShop.Contracts.Responses;
+
 namespace ElectroShop.Mvc.Services;
 
 // Cookie chỉ mang session id; JWT nằm trên server và riêng cho từng phiên.
 public sealed class TokenStore
 {
     private readonly ConcurrentDictionary<string, AuthResponse> sessions = new();
+
     public string Add(AuthResponse auth)
     {
         foreach (var expired in sessions.Where(x => x.Value.ExpiresAt <= DateTimeOffset.UtcNow))
@@ -15,6 +17,7 @@ public sealed class TokenStore
         sessions[id] = auth;
         return id;
     }
+
     public AuthResponse? Get(string? id)
     {
         if (id is null || !sessions.TryGetValue(id, out var auth))
@@ -24,6 +27,7 @@ public sealed class TokenStore
         sessions.TryRemove(id, out _);
         return null;
     }
+
     public void Remove(string? id)
     {
         if (id is not null)

@@ -2,30 +2,81 @@
 @attribute [Authorize(Roles = "Admin")]
 @inject NavigationManager Navigation
 @using ElectroShop.Blazor.Components.Admin
+
 <PageTitle>Quản trị | ElectroShop</PageTitle>
-<div class="page-heading"><div><span class="eyebrow">TRUNG TÂM QUẢN TRỊ</span><h1>Quản lý cửa hàng</h1></div><a href="/">Xem cửa hàng →</a></div>
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">TRUNG TÂM QUẢN TRỊ</span>
+        <h1>Quản trị cửa hàng</h1>
+        <p class="page-description">Theo dõi hoạt động và quản lý cửa hàng của bạn.</p>
+    </div>
+    <a class="button secondary" href="/">Xem cửa hàng ↗</a>
+</div>
 <div class="admin-layout">
     <nav class="admin-sidebar" aria-label="Khu vực quản trị">
-        @foreach(var item in tabs)
+        <span class="admin-sidebar-label">QUẢN LÝ CỬA HÀNG</span>
+        @foreach (var item in tabs)
         {
-            <button type="button" class="tab-button @(tab == item.Key ? "active" : "")" aria-pressed="@(tab == item.Key)" @onclick="() => SetTab(item.Key)">@item.Value</button>
+            <button
+                type="button"
+                class="tab-button @(tab == item.Key ? "active" : "")"
+                aria-pressed="@(tab == item.Key)"
+                @onclick="() => SetTab(item.Key)">
+                <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="@icons[item.Key]" />
+                </svg>
+                @item.Value
+            </button>
         }
     </nav>
     <div class="admin-content">
-        @switch(tab)
+        @switch (tab)
         {
-            case "orders": <OrdersPanel /> break;
-            case "products": <ProductsPanel /> break;
-            case "customers": <CustomersPanel /> break;
-            case "accounts": <AccountsPanel /> break;
-            default: <DashboardPanel /> break;
+            case "orders":
+                <OrdersPanel />
+                break;
+            case "products":
+                <ProductsPanel />
+                break;
+            case "customers":
+                <CustomersPanel />
+                break;
+            case "accounts":
+                <AccountsPanel />
+                break;
+            default:
+                <DashboardPanel />
+                break;
         }
     </div>
 </div>
-@code {
-    [SupplyParameterFromQuery(Name = "tab")] public string? ActiveTab { get; set; }
+
+@code
+{
+    [SupplyParameterFromQuery(Name = "tab")]
+    public string? ActiveTab { get; set; }
     private string tab = "dashboard";
-    protected override void OnParametersSet() => tab = ActiveTab is not null && tabs.ContainsKey(ActiveTab) ? ActiveTab : "dashboard";
+
+    protected override void OnParametersSet() =>
+        tab = ActiveTab is not null && tabs.ContainsKey(ActiveTab) ? ActiveTab : "dashboard";
+
     private void SetTab(string key) => Navigation.NavigateTo("/admin?tab=" + key);
-    private readonly Dictionary<string, string> tabs = new() { ["dashboard"] = "Tổng quan", ["orders"] = "Đơn hàng", ["products"] = "Sản phẩm & danh mục", ["customers"] = "Khách hàng", ["accounts"] = "Tài khoản" };
+
+    private readonly Dictionary<string, string> icons = new()
+    {
+        ["dashboard"] = "M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z",
+        ["orders"] = "M6 3h12v18H6z M9 7h6 M9 12h6 M9 17h4",
+        ["products"] = "m12 3 9 5v9l-9 5-9-5V8z M3 8l9 5 9-5 M12 13v9 M7 5l9 5",
+        ["customers"] =
+            "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M17 4a4 4 0 0 1 0 8 M22 21v-2a4 4 0 0 0-3-4",
+        ["accounts"] = "M12 3 3 7v5c0 5 9 10 9 10s9-5 9-10V7z M8 12l3 3 5-6",
+    };
+    private readonly Dictionary<string, string> tabs = new()
+    {
+        ["dashboard"] = "Tổng quan",
+        ["orders"] = "Đơn hàng",
+        ["products"] = "Sản phẩm",
+        ["customers"] = "Khách hàng",
+        ["accounts"] = "Tài khoản",
+    };
 }

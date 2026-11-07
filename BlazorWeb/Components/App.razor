@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <base href="/" />
-    <link rel="stylesheet" href="/_content/ElectroShop.UiKit/css/shop.css" />
-    <link rel="stylesheet" href="app.css" />
-    <link rel="stylesheet" href="@Assets["ElectroShop.Blazor.styles.css"]" />
-    <ImportMap />
-    <HeadOutlet @rendermode="InteractiveServer" />
-</head>
-<body>
-    <Routes @rendermode="InteractiveServer" />
-    <ReconnectModal />
-    <script src="blazor-shop.js"></script>
-    <script src="@Assets["_framework/blazor.web.js"]"></script>
-</body>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <base href="/" />
+        <link rel="stylesheet" href="/_content/ElectroShop.UiKit/css/shop.css" />
+        <link rel="stylesheet" href="app.css" />
+        <link rel="stylesheet" href="@Assets["ElectroShop.Blazor.styles.css"]" />
+        <ImportMap />
+        <HeadOutlet @rendermode="InteractiveServer" />
+    </head>
+    <body>
+        <Routes @rendermode="InteractiveServer" />
+        <ReconnectModal />
+        <script src="/_content/ElectroShop.UiKit/js/shop.js"></script>
+        <script src="blazor-shop.js"></script>
+        <script src="@Assets["_framework/blazor.web.js"]"></script>
+    </body>
 </html>

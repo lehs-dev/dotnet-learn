@@ -6,14 +6,10 @@ namespace ElectroShop.DatabaseFirst.Models;
 
 public partial class ElectroShopDbFirstContext : DbContext
 {
-    public ElectroShopDbFirstContext()
-    {
-    }
+    public ElectroShopDbFirstContext() { }
 
     public ElectroShopDbFirstContext(DbContextOptions<ElectroShopDbFirstContext> options)
-        : base(options)
-    {
-    }
+        : base(options) { }
 
     public virtual DbSet<Category> Categories { get; set; }
 
@@ -26,8 +22,12 @@ public partial class ElectroShopDbFirstContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
-            optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("ConnectionStrings__DbFirst")
-                ?? throw new InvalidOperationException("Hãy đặt biến môi trường ConnectionStrings__DbFirst."));
+            optionsBuilder.UseSqlServer(
+                Environment.GetEnvironmentVariable("ConnectionStrings__DbFirst")
+                    ?? throw new InvalidOperationException(
+                        "Hãy đặt biến môi trường ConnectionStrings__DbFirst."
+                    )
+            );
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -45,14 +45,19 @@ public partial class ElectroShopDbFirstContext : DbContext
         {
             entity.HasIndex(e => e.CategoryId, "IX_Products_CategoryId");
 
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysdatetimeoffset())", "DF_Products_CreatedAt");
-            entity.Property(e => e.ImageUrl)
+            entity
+                .Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(sysdatetimeoffset())", "DF_Products_CreatedAt");
+            entity
+                .Property(e => e.ImageUrl)
                 .HasMaxLength(500)
                 .HasDefaultValue("", "DF_Products_Image");
             entity.Property(e => e.Name).HasMaxLength(200);
             entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
 
-            entity.HasOne(d => d.Category).WithMany(p => p.Products)
+            entity
+                .HasOne(d => d.Category)
+                .WithMany(p => p.Products)
                 .HasForeignKey(d => d.CategoryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Products_Categories");

@@ -1,2 +1,93 @@
 @model ProductEditor
-<form method="post" asp-page="/Admin/Index" asp-page-handler="Product"><input type="hidden" name="id" value="@Model.Id"/><input type="hidden" name="product.RowVersion" value="@Model.Product.RowVersion"/><div class="form-grid"><div class="field"><label>Tên sản phẩm<input name="product.Name" value="@Model.Product.Name" required maxlength="200"/></label></div><div class="field"><label>Danh mục<select name="product.CategoryId" required>@foreach(var category in Model.Categories){<option value="@category.Id" selected="@(category.Id==Model.Product.CategoryId)">@category.Name @(category.IsActive?"":"(ẩn)")</option>}</select></label></div><div class="field"><label>Slug<input name="product.Slug" value="@Model.Product.Slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="200"/></label></div><div class="field"><label>Mã SKU<input name="product.SKU" value="@Model.Product.SKU" required maxlength="50"/></label></div><div class="field"><label>Giá (VND)<input name="product.Price" value="@Model.Product.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)" type="number" min="0" max="999999999999" step="0.01" required/></label></div><div class="field"><label>Tồn kho<input name="product.StockQuantity" value="@Model.Product.StockQuantity" type="number" min="0" max="1000000" required/></label></div><div class="field full-width"><label>Đường dẫn ảnh<input name="product.ImageUrl" value="@Model.Product.ImageUrl" required maxlength="500"/></label></div><div class="field full-width"><label>Mô tả<textarea name="product.Description" required maxlength="4000">@Model.Product.Description</textarea></label></div><label class="field"><span><input name="product.IsActive" value="true" type="checkbox" checked="@Model.Product.IsActive"/> Hiển thị sản phẩm</span><input name="product.IsActive" value="false" type="hidden"/></label></div><button class="button small">@(Model.Id==0?"Thêm sản phẩm":"Lưu sản phẩm")</button></form>
+
+<form method="post" asp-page="/Admin/Index" asp-page-handler="Product">
+    <input
+        type="hidden"
+        name="returnUrl"
+        value="@(Context.Request.Path + Context.Request.QueryString)" />
+    <input type="hidden" name="id" value="@Model.Id"/>
+    <input type="hidden" name="product.RowVersion" value="@Model.Product.RowVersion"/>
+    <div class="form-grid">
+        <div class="field">
+            <label>
+                Tên sản phẩm
+                <input name="product.Name" value="@Model.Product.Name" required maxlength="200"/>
+            </label>
+        </div>
+        <div class="field">
+            <label>
+                Danh mục
+                <select name="product.CategoryId" required>
+                    @foreach (var category in Model.Categories)
+                    {
+                        <option value="@category.Id" selected="@(category.Id==Model.Product.CategoryId)">
+                            @category.Name @(category.IsActive?"":"(ẩn)")
+                        </option>
+                    }
+                </select>
+            </label>
+        </div>
+        <div class="field">
+            <label>
+                Slug
+                <input
+                    name="product.Slug"
+                    value="@Model.Product.Slug"
+                    required
+                    pattern="[a-z0-9]+(-[a-z0-9]+)*"
+                    maxlength="200"/>
+            </label>
+        </div>
+        <div class="field">
+            <label>
+                Mã SKU
+                <input name="product.SKU" value="@Model.Product.SKU" required maxlength="50"/>
+            </label>
+        </div>
+        <div class="field">
+            <label>
+                Giá (VND)
+                <input
+                    name="product.Price"
+                    value="@Model.Product.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                    type="number"
+                    min="0"
+                    max="999999999999"
+                    step="0.01"
+                    required/>
+            </label>
+        </div>
+        <div class="field">
+            <label>
+                Tồn kho
+                <input
+                    name="product.StockQuantity"
+                    value="@Model.Product.StockQuantity"
+                    type="number"
+                    min="0"
+                    max="1000000"
+                    required/>
+            </label>
+        </div>
+        <div class="field full-width">
+            <label>
+                Đường dẫn ảnh
+                <input name="product.ImageUrl" value="@Model.Product.ImageUrl" required maxlength="500"/>
+            </label>
+        </div>
+        <div class="field full-width">
+            <label>
+                Mô tả
+                <textarea name="product.Description" required maxlength="4000">@Model.Product.Description</textarea>
+            </label>
+        </div>
+        <label class="field">
+            <span>
+                <input name="product.IsActive" value="true" type="checkbox" checked="@Model.Product.IsActive"/>
+                Hiển thị sản phẩm
+            </span>
+            <input name="product.IsActive" value="false" type="hidden"/>
+        </label>
+    </div>
+    <button class="button small">@(Model.Id==0?"Thêm sản phẩm":"Lưu sản phẩm")</button>
+</form>

@@ -1,6 +1,55 @@
 @page "/products/{slug}"
 @model ElectroShop.RazorPages.Pages.Products.DetailModel
-@{ViewData["Title"]=Model.Product?.Name??"Chi tiết sản phẩm";}
-<div class="breadcrumb"><a href="/">Trang chủ</a> / Chi tiết sản phẩm</div>
-@if(Model.Error is not null){<div class="alert error">@Model.Error</div>}
-@if(Model.Product is {} p){<section class="detail-grid"><div class="detail-image"><img src="@p.ImageUrl" alt="@p.Name"/></div><div><span class="eyebrow">@p.CategoryName</span><h1>@p.Name</h1><p class="product-meta">Mã sản phẩm: @p.SKU</p><p class="product-price">@ShopPageModel.Vnd(p.Price)</p><p>@p.Description</p><p>@(p.StockQuantity>0?$"Còn {p.StockQuantity} sản phẩm":"Tạm hết hàng")</p><form method="post" asp-page="/Index" asp-page-handler="Add" class="card-actions"><input type="hidden" name="productId" value="@p.Id"/><input type="hidden" name="returnUrl" value="/products/@p.Slug"/><label>Số lượng <input class="quantity-input" name="quantity" type="number" value="1" min="1" max="@p.StockQuantity" required/></label><button class="button" disabled="@(p.StockQuantity<=0)">Thêm vào giỏ hàng</button></form><p class="product-meta">Thanh toán thử nghiệm an toàn. Không yêu cầu thông tin thẻ.</p></div></section><div class="page-heading"><h2>Sản phẩm liên quan</h2></div><div class="product-grid">@foreach(var product in Model.Related){<partial name="_ProductCard" model="product"/>}</div>}
+@{
+    ViewData["Title"] = Model.Product?.Name ?? "Chi tiết sản phẩm";
+}
+<div class="breadcrumb">
+    <a href="/">Trang chủ</a>
+    / Chi tiết sản phẩm
+</div>
+@if (Model.Error is not null)
+{
+    <div class="alert error">@Model.Error</div>
+}
+@if (Model.Product is { } p)
+{
+    <section class="detail-grid">
+        <div class="detail-image">
+            <img src="@p.ImageUrl" alt="@p.Name" />
+        </div>
+        <div>
+            <span class="eyebrow">@p.CategoryName</span>
+            <h1>@p.Name</h1>
+            <p class="product-meta">Mã sản phẩm: @p.SKU</p>
+            <p class="product-price">@ShopPageModel.Vnd(p.Price)</p>
+            <p>@p.Description</p>
+            <p>@(p.StockQuantity > 0 ? $"Còn {p.StockQuantity} sản phẩm" : "Tạm hết hàng")</p>
+            <form method="post" asp-page="/Index" asp-page-handler="Add" class="card-actions">
+                <input type="hidden" name="productId" value="@p.Id" />
+                <input type="hidden" name="returnUrl" value="/products/@p.Slug" />
+                <label>
+                    Số lượng
+                    <input
+                        class="quantity-input"
+                        name="quantity"
+                        type="number"
+                        value="1"
+                        min="1"
+                        max="@Math.Min(999, p.StockQuantity)"
+                        required />
+                </label>
+                <button class="button" disabled="@(p.StockQuantity <= 0)">Thêm vào giỏ hàng</button>
+            </form>
+            <p class="product-meta">Thanh toán thử nghiệm an toàn. Không yêu cầu thông tin thẻ.</p>
+        </div>
+    </section>
+    <div class="page-heading">
+        <h2>Sản phẩm liên quan</h2>
+    </div>
+    <div class="product-grid">
+        @foreach (var product in Model.Related)
+        {
+            <partial name="_ProductCard" model="product" />
+        }
+    </div>
+}

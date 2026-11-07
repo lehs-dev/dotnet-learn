@@ -2,45 +2,119 @@
 @inject AuthenticationStateProvider Auth
 @inject SessionTokenStore Tokens
 @inject NavigationManager Navigation
+
 <h2>Quản lý tài khoản</h2>
 <PanelAlerts Error="@Error" Message="@Message" />
-<p>Thay đổi quyền và trạng thái tài khoản. Hệ thống bảo vệ tài khoản quản trị hoạt động cuối cùng.</p>
-<form class="filters" @onsubmit="() => Search(1)" @onsubmit:preventDefault><label class="form-field">Tìm tài khoản<input @bind="query" placeholder="Họ tên hoặc email" /></label><button class="button" disabled="@Busy" type="submit">Tìm kiếm</button></form>
-@if(accounts is not null)
+<p>
+    Thay đổi quyền và trạng thái tài khoản. Hệ thống bảo vệ tài khoản quản trị hoạt động cuối cùng.
+</p>
+<form class="filters" @onsubmit="() => Search(1)" @onsubmit:preventDefault>
+    <label class="form-field">
+        Tìm tài khoản
+        <input @bind="query" placeholder="Họ tên hoặc email" />
+    </label>
+    <button class="button" disabled="@Busy" type="submit">Tìm kiếm</button>
+</form>
+@if (accounts is not null)
 {
     <p>@accounts.TotalCount tài khoản</p>
-    <div class="table-wrap"><table class="data-table"><thead><tr><th>Tài khoản</th><th>Ngày tạo</th><th>Vai trò</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody>
-    @foreach(var c in accounts.Items)
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Tài khoản</th>
+                    <th>Ngày tạo</th>
+                    <th>Vai trò</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in accounts.Items)
+                {
+                    <tr>
+                        <td>
+                            <strong>@c.FullName</strong>
+                            <br />
+                            @c.Email
+                        </td>
+                        <td>@Display.Date(c.CreatedAt)</td>
+                        <td>
+                            <select aria-label="Vai trò @c.Email" @bind="access[c.Id].Role">
+                                <option value="Customer">Customer</option>
+                                <option value="Admin">Admin</option>
+                            </select>
+                        </td>
+                        <td>
+                            <label>
+                                <input type="checkbox" @bind="access[c.Id].IsActive" />
+                                Hoạt động
+                            </label>
+                        </td>
+                        <td>
+                            <button class="button secondary small" disabled="@Busy" @onclick="() => Save(c.Id)">
+                                Lưu thay đổi
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (accounts.Items.Count == 0)
     {
-        <tr><td><strong>@c.FullName</strong><br />@c.Email</td><td>@Display.Date(c.CreatedAt)</td><td><select aria-label="Vai trò @c.Email" @bind="access[c.Id].Role"><option value="Customer">Customer</option><option value="Admin">Admin</option></select></td><td><label><input type="checkbox" @bind="access[c.Id].IsActive" /> Hoạt động</label></td><td><button class="button secondary small" disabled="@Busy" @onclick="() => Save(c.Id)">Lưu thay đổi</button></td></tr>
+        <div class="empty-state">Không có tài khoản phù hợp.</div>
     }
-    </tbody></table></div>
-    @if(accounts.Items.Count == 0) { <div class="empty-state">Không có tài khoản phù hợp.</div> }
     <Pagination Page="accounts.Page" TotalPages="accounts.TotalPages" OnPage="Search" Disabled="Busy" />
 }
-@code {
+
+@code
+{
     private string query = "";
     private PagedResult<CustomerDto>? accounts;
     private Dictionary<string, AccountAccessRequest> access = [];
+
     protected override Task OnInitializedAsync() => Search(1);
+
     private Task Search(int page) => Run(() => Load(page));
+
     private async Task Load(int page)
     {
-        accounts = await Api.GetAsync<PagedResult<CustomerDto>>($"api/admin/accounts?q={Uri.EscapeDataString(query)}&page={page}&pageSize=10");
-        access = accounts.Items.ToDictionary(x => x.Id, x => new AccountAccessRequest { Role = x.Roles.Contains("Admin") ? "Admin" : "Customer", IsActive = x.IsActive });
+        accounts = await Api.GetAsync<PagedResult<CustomerDto>>(
+            $"api/admin/accounts?q={Uri.EscapeDataString(query)}&page={page}&pageSize=10"
+        );
+        access = accounts.Items.ToDictionary(
+            x => x.Id,
+            x => new AccountAccessRequest
+            {
+                Role = x.Roles.Contains("Admin") ? "Admin" : "Customer",
+                IsActive = x.IsActive,
+            }
+        );
     }
-    private Task Save(string id) => Run(async () =>
-    {
-        var request = access[id];
-        await Api.PutAsync($"api/admin/accounts/{Uri.EscapeDataString(id)}/access", request);
-        var user = (await Auth.GetAuthenticationStateAsync()).User;
-        if (user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == id && (request.Role != "Admin" || !request.IsActive))
-        {
-            // Vai trò cookie thay đổi sau lần đăng nhập tiếp theo; kết thúc phiên hiện tại.
-            Tokens.Remove(user.FindFirst("session_id")?.Value);
-            Navigation.NavigateTo("/?login=1", forceLoad: true);
-            return;
-        }
-        await Load(accounts?.Page ?? 1);
-    }, "Đã cập nhật quyền và trạng thái tài khoản.");
+
+    private Task Save(string id) =>
+        Run(
+            async () =>
+            {
+                var request = access[id];
+                await Api.PutAsync(
+                    $"api/admin/accounts/{Uri.EscapeDataString(id)}/access",
+                    request
+                );
+                var user = (await Auth.GetAuthenticationStateAsync()).User;
+                if (
+                    user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == id
+                    && (request.Role != "Admin" || !request.IsActive)
+                )
+                {
+                    // Vai trò cookie thay đổi sau lần đăng nhập tiếp theo; kết thúc phiên hiện tại.
+                    Tokens.Remove(user.FindFirst("session_id")?.Value);
+                    Navigation.NavigateTo("/?login=1", forceLoad: true);
+                    return;
+                }
+                await Load(accounts?.Page ?? 1);
+            },
+            "Đã cập nhật quyền và trạng thái tài khoản."
+        );
 }

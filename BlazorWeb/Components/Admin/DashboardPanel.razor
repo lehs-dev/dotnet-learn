@@ -1,21 +1,51 @@
 @inherits AdminPanelBase
+
 <h2>Tổng quan cửa hàng</h2>
 <PanelAlerts Error="@Error" />
-@if (Busy) { <p class="loading">Đang tải thống kê…</p> }
+@if (Busy)
+{
+    <p class="loading">Đang tải thống kê…</p>
+}
 else if (dashboard is not null)
 {
     <div class="stats-grid">
-        <div class="stat-card"><span>Sản phẩm</span><strong>@dashboard.TotalProducts</strong></div>
-        <div class="stat-card"><span>Khách hàng</span><strong>@dashboard.TotalCustomers</strong></div>
-        <div class="stat-card"><span>Đơn hàng</span><strong>@dashboard.TotalOrders</strong></div>
-        <div class="stat-card"><span>Doanh thu đã thanh toán</span><strong>@Display.Money(dashboard.Revenue)</strong></div>
-        <div class="stat-card"><span>Chờ xử lý</span><strong>@dashboard.PendingOrders</strong></div>
+        <div class="stat-card">
+            <span>Sản phẩm</span>
+            <strong>@dashboard.TotalProducts</strong>
+        </div>
+        <div class="stat-card">
+            <span>Khách hàng</span>
+            <strong>@dashboard.TotalCustomers</strong>
+        </div>
+        <div class="stat-card">
+            <span>Đơn hàng</span>
+            <strong>@dashboard.TotalOrders</strong>
+        </div>
+        <div class="stat-card">
+            <span>Doanh thu đã thanh toán</span>
+            <strong>@Display.Money(dashboard.Revenue)</strong>
+        </div>
+        <div class="stat-card">
+            <span>Chờ xử lý</span>
+            <strong>@dashboard.PendingOrders</strong>
+        </div>
     </div>
     <h3>5 đơn hàng gần nhất</h3>
-    @if (dashboard.RecentOrders.Count == 0) { <div class="empty-state">Chưa có đơn hàng.</div> }
-    @foreach (var order in dashboard.RecentOrders) { <OrderDetails Order="order" /> }
+    @if (dashboard.RecentOrders.Count == 0)
+    {
+        <div class="empty-state">Chưa có đơn hàng.</div>
+    }
+
+    @foreach (var order in dashboard.RecentOrders)
+    {
+        <OrderDetails Order="order" />
+    }
 }
-@code {
+
+@code
+{
     private DashboardDto? dashboard;
-    protected override Task OnInitializedAsync() => Run(async () => dashboard = await Api.GetAsync<DashboardDto>("api/admin/dashboard"));
+
+    protected override Task OnInitializedAsync() =>
+        Run(async () => dashboard = await Api.GetAsync<DashboardDto>("api/admin/dashboard"));
 }

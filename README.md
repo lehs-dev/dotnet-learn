@@ -102,7 +102,7 @@ dotnet run --project API --no-launch-profile -- --seed-only
 
 Migration đã được tạo trong `API/Data/Migrations`. Chỉ API quản lý schema. Seed chạy nhiều lần không trùng:7 danh mục,22 sản phẩm với SVG tĩnh từ UiKit,2 role, Admin Development từ cấu hình. Không ghi đè giá/tồn kho hiện có. Không seed đơn hàng giả; Dashboard dựa trên mua hàng thật. `--seed-only` tự migrate rồi seed và thoát.
 
-Nếu chưa có SQL credentials, vẫn có thể `dotnet build` và chạy unit tests; SQL integration tests sẽ báo skipped rõ ràng. Không tự chuyển ứng dụng sang database khác. Chỉ nhập lại connection string rồi chạy các lệnh phía trên.
+Ứng dụng và integration tests dùng SQLite, không cần SQL Server credentials. Mỗi lần chạy test tạo một database SQLite riêng trong thư mục tạm và xóa sau khi hoàn tất; không dùng database hay tài khoản Admin trong `.env`.
 
 ## Chạy riêng từng ứng dụng
 
@@ -138,9 +138,21 @@ dotnet build ElectroShop.sln
 dotnet test ElectroShop.sln --no-build
 ```
 
-Nạp `.env` trước `dotnet test` để chạy cả SQL integration. Khi không có `ConnectionStrings__DefaultConnection`, các `[SqlServerFact]` báo **Skipped**, unit tests vẫn chạy. SQL tests dùng database thật cấu hình, tạo user/product riêng và dọn chính dữ liệu test đó, không drop database. Nên dùng môi trường học tập thay vì dữ liệu sản xuất.
+Không cần nạp `.env` khi chạy kiểm thử. Unit và integration tests chạy trên SQLite thật, với database tạm riêng cho mỗi lượt chạy. Tên fixture/attribute `SqlServerFixture` / `SqlServerFact` được giữ từ phiên bản cũ; provider thực tế là SQLite và các test không bị bỏ qua khi thiếu connection string.
 
-Tests bao phủ cộng/thay số lượng giỏ, giới hạn tồn, tiền decimal, tổng đơn snapshot, quyền sở hữu,403 Admin, thất bại/thử lại, duplicate checkout/payment, concurrent payment, sửa giá và RowVersion. Kết quả kiểm chứng chạy thực tế được tổng hợp trong `Mo-ta-du-an-ElectroShop.pdf` (mục Kiểm thử) — 39/39 test xUnit đạt và bộ smoke test HTTP đầu-cuối qua API.
+Bộ xUnit bao phủ giỏ hàng, tồn kho, tiền decimal, snapshot đơn, quyền sở hữu, phân quyền, thanh toán thất bại/thử lại, chống lặp và thanh toán đồng thời, RowVersion, truy vấn Khách hàng/Tài khoản trên SQLite, sắp xếp giá, CRUD danh mục/sản phẩm, khóa/mở khóa và thu hồi token. Xem phạm vi và cách kiểm chứng trong [KIEM-THU.md](KIEM-THU.md).
+
+Kiểm tra trình duyệt thật trên cả ba frontend (Chromium qua Playwright):
+
+```bash
+python3 -m venv .local/venv
+.local/venv/bin/pip install -r scripts/requirements-e2e.txt
+.local/venv/bin/python -m playwright install --with-deps chromium
+dotnet build ElectroShop.sln
+.local/venv/bin/python scripts/check-system.py
+```
+
+Script tự chạy API và ba frontend ở các cổng trống, tạo database SQLite tạm cùng tài khoản riêng, rồi dừng các process do nó tạo. Không dùng `.env` hay thay đổi dữ liệu trong các ứng dụng đang chạy. Kết quả JSON, log và ảnh desktop/mobile nằm trong `.local/system-check/`.
 
 ## File nên mở để học
 
@@ -161,7 +173,7 @@ Tests bao phủ cộng/thay số lượng giỏ, giới hạn tồn, tiền deci
 
 ## Lỗi thường gặp và giới hạn
 
-- **SQL không kết nối**: kiểm tra service hiện có, hostname db/localhost, port1433, mật khẩu và database permission. Không tạo SQL container mới. `/health` trả503 khi SQL không sẵn sàng.
+- **SQLite không mở được**: kiểm tra đường dẫn `Data Source`, thư mục cha và quyền đọc/ghi file database. `/health` trả503 khi database không sẵn sàng.
 - **Thiếu Jwt__Key**: API cố ý từ chối khởi động nếu key dưới32 byte. Nạp `.env` ở đúng terminal hoặc cấu hình user secrets.
 - **Không có Admin**: kiểm tra Development và cả hai biến Seed__Admin..., chạy seed-only. Seed không tự đổi mật khẩu của tài khoản đã tồn tại.
 - **API-offline trên trang**: khởi động API trước; xác minh Api:BaseUrl trong appsettings/environment. Frontend hiển thị lỗi thay vì giả dữ liệu.
