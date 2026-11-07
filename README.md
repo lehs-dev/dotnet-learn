@@ -43,7 +43,8 @@ UiKit/wwwroot/                  CSS, JS nhỏ, SVG sản phẩm chung
 Tests/                          xUnit unit + integration SQL thật
 scripts/run-all.sh              Chạy/dừng bốn ứng dụng
 ElectroShop.sln                  Một solution, bảy projects trực tiếp tại root
-docs/                           Kiến trúc, database, API, so sánh, manual test
+Mo-ta-du-an-ElectroShop.pdf     Tài liệu mô tả dự án đầy đủ (kiến trúc, database, API, kiểm thử)
+DatabaseFirst/                  Minh chứng Database First: schema.sql + project scaffold từ DB
 ```
 
 Frontend chỉ tham chiếu Shared+UiKit, gọi API qua HTTP; không tham chiếu API/DbContext/Entities. Tests tham chiếu API. Luồng tổng quát: **Browser → Frontend server → API → EF Core → SQL Server**.
@@ -140,7 +141,7 @@ dotnet test ElectroShop.sln --no-build
 
 Nạp `.env` trước `dotnet test` để chạy cả SQL integration. Khi không có `ConnectionStrings__DefaultConnection`, các `[SqlServerFact]` báo **Skipped**, unit tests vẫn chạy. SQL tests dùng database thật cấu hình, tạo user/product riêng và dọn chính dữ liệu test đó, không drop database. Nên dùng môi trường học tập thay vì dữ liệu sản xuất.
 
-Tests bao phủ cộng/thay số lượng giỏ, giới hạn tồn, tiền decimal, tổng đơn snapshot, quyền sở hữu,403 Admin, thất bại/thử lại, duplicate checkout/payment, concurrent payment, sửa giá và RowVersion. Xem `docs/VERIFICATION.md` cho kết quả đã chạy thực tế và phạm vi kiểm chứng. Chưa có kiểm thử tương tác bằng trình duyệt; checklist thủ công ở `docs/MANUAL-TEST.md` chưa tự đánh dấu hoàn thành.
+Tests bao phủ cộng/thay số lượng giỏ, giới hạn tồn, tiền decimal, tổng đơn snapshot, quyền sở hữu,403 Admin, thất bại/thử lại, duplicate checkout/payment, concurrent payment, sửa giá và RowVersion. Kết quả kiểm chứng chạy thực tế được tổng hợp trong `Mo-ta-du-an-ElectroShop.pdf` (mục Kiểm thử) — 39/39 test xUnit đạt và bộ smoke test HTTP đầu-cuối qua API.
 
 ## File nên mở để học
 
@@ -151,7 +152,13 @@ Tests bao phủ cộng/thay số lượng giỏ, giới hạn tồn, tiền deci
 | Checkout | `RazorPage/Pages/Checkout/Index.cshtml.cs` | `BlazorWeb/Components/Pages/Checkout.razor` | `MVC/Controllers/CheckoutController.cs` |
 | Gọi API | `RazorPage/Services/ShopApiClient.cs` | `BlazorWeb/Services/ShopApiClient.cs` | `MVC/Services/ShopApiClient.cs` |
 
-Đọc tiếp [so sánh thực tế](docs/COMPARISON.md), [kiến trúc](docs/ARCHITECTURE.md), [database](docs/DATABASE.md), [API](docs/API.md), rồi `API/Services/OrderService.cs` cho transaction/idempotency.
+Đọc tiếp tài liệu `Mo-ta-du-an-ElectroShop.pdf` ở root repo (kiến trúc, database Code First/Database First, danh sách API, kiểm thử), rồi `API/Services/OrderService.cs` cho transaction/idempotency.
+
+## Admin tách riêng và Database First
+
+- **Admin có cổng riêng `/admin`**: cả ba frontend đều có trang đăng nhập quản trị tại `/admin/login`, gọi endpoint riêng `POST api/auth/admin/login`. Tài khoản khách đăng nhập ở cổng thường (`/auth/login`); tài khoản Admin bị từ chối ở cổng khách và khách bị từ chối (403) ở cổng Admin. Đăng ký công khai luôn tạo vai trò Customer.
+- **Tạo tài khoản Admin riêng** (không dùng chung dữ liệu khách): đặt `Seed__AdminEmail`/`Seed__AdminPassword` trong `.env` rồi chạy `dotnet run --project API -- --create-admin` — lệnh tạo/gán duy nhất vai trò Admin cho tài khoản đó rồi thoát.
+- **Database First**: thư mục `DatabaseFirst/` chứa `schema.sql` (tạo database `ElectroShopDbFirst` bằng SQL thuần) và project console đã scaffold ngược thành entity + DbContext bằng `dotnet ef dbcontext scaffold`; chạy `dotnet run --project DatabaseFirst` để đọc dữ liệu thật từ database đó. Song song, luồng chính vẫn là **Code First** (migration `InitialCreate` + `dotnet ef database update`).
 
 ## Lỗi thường gặp và giới hạn
 

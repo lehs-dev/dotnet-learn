@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 340" role="img" aria-label="Razer DeathAdder">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ecfccb"/><stop offset="1" stop-color="#f8fafc"/></linearGradient></defs>
+<rect width="440" height="340" fill="url(#bg)"/>
+<circle cx="392" cy="36" r="70" fill="#65a30d" opacity="0.10"/>
+<circle cx="30" cy="316" r="56" fill="#65a30d" opacity="0.10"/>
+<ellipse cx="220" cy="292" rx="140" ry="10" fill="#1a3550" opacity="0.10"/>
+<rect x="156" y="42" width="128" height="216" rx="62" fill="#243e60"/><path d="M220 42 v78" stroke="#65a30d" stroke-width="10" stroke-linecap="round"/><rect x="212" y="76" width="16" height="40" rx="8" fill="#65a30d"/><path d="M156 128 h128" stroke="#ffffff" stroke-width="4" opacity="0.35"/><path d="M220 42 c0-18 22-20 22-36" fill="none" stroke="#243e60" stroke-width="6"/>
+<rect x="24" y="298" width="170" height="28" rx="14" fill="#65a30d"/>
+<text x="40" y="318" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#ffffff">Razer DeathAdder</text>
+</svg>

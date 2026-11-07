@@ -15,8 +15,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     options.ExpireTimeSpan = TimeSpan.FromHours(1);
     options.SlidingExpiration = false;
-    options.Events.OnRedirectToLogin = ctx => { ctx.Response.Redirect("/?login=1"); return Task.CompletedTask; };
-    options.Events.OnRedirectToAccessDenied = ctx => { ctx.Response.Redirect("/?denied=1"); return Task.CompletedTask; };
+    // Khu vực /admin có cổng đăng nhập quản trị riêng; phần còn lại dùng popup khách hàng ở trang chủ.
+    options.Events.OnRedirectToLogin = ctx => { ctx.Response.Redirect(ctx.HttpContext.Request.Path.StartsWithSegments("/admin") ? "/admin/login" : "/?login=1"); return Task.CompletedTask; };
+    options.Events.OnRedirectToAccessDenied = ctx => { ctx.Response.Redirect(ctx.HttpContext.Request.Path.StartsWithSegments("/admin") ? "/admin/login?denied=1" : "/?denied=1"); return Task.CompletedTask; };
     options.Events.OnValidatePrincipal = async ctx => { if (ctx.HttpContext.RequestServices.GetRequiredService<TokenStore>().Get(ctx.Principal?.FindFirst("session")?.Value) is null) { ctx.RejectPrincipal(); await Microsoft.AspNetCore.Authentication.AuthenticationHttpContextExtensions.SignOutAsync(ctx.HttpContext); } };
 });
 builder.Services.AddAuthorization();

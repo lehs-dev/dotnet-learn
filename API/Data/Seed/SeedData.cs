@@ -32,10 +32,18 @@ public static class SeedData
         {
             var p = products[i];
             var sku = $"ES-{i + 1:0000}";
-            if (await db.Products.AnyAsync(x => x.SKU == sku))
+            // Ảnh demo riêng cho từng sản phẩm (UiKit/wwwroot/images/products/<slug>.svg).
+            var imageUrl = $"/_content/ElectroShop.UiKit/images/products/{p.Slug}.svg";
+            var existing = await db.Products.FirstOrDefaultAsync(x => x.SKU == sku);
+            if (existing is not null)
+            {
+                // DB đã seed từ trước: cập nhật đường ảnh cũ (ảnh theo danh mục) sang ảnh riêng của sản phẩm.
+                if (existing.ImageUrl != imageUrl)
+                    existing.ImageUrl = imageUrl;
                 continue;
+            }
             var category = await db.Categories.SingleAsync(x => x.Slug == slugs[p.Category]);
-            db.Products.Add(new Product { Name = p.Name, Slug = p.Slug, SKU = sku, Price = p.Price, CategoryId = category.Id, StockQuantity = i == 15 ? 0 : 12 + i, ImageUrl = $"/_content/ElectroShop.UiKit/images/{p.Image}.svg", Description = $"{p.Name} phù hợp cho học tập, làm việc và giải trí hằng ngày. Thiết kế gọn gàng, dễ sử dụng. Sản phẩm minh họa phục vụ học .NET 10; giá chỉ là dữ liệu mẫu." });
+            db.Products.Add(new Product { Name = p.Name, Slug = p.Slug, SKU = sku, Price = p.Price, CategoryId = category.Id, StockQuantity = i == 15 ? 0 : 12 + i, ImageUrl = imageUrl, Description = $"{p.Name} phù hợp cho học tập, làm việc và giải trí hằng ngày. Thiết kế gọn gàng, dễ sử dụng. Sản phẩm minh họa phục vụ học .NET 10; giá chỉ là dữ liệu mẫu." });
         }
         await db.SaveChangesAsync();
         if (environment.IsDevelopment())

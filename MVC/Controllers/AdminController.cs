@@ -1,15 +1,60 @@
 using ElectroShop.Contracts.DTOs;
 using ElectroShop.Contracts.Requests;
 using ElectroShop.Contracts.Responses;
+using System.Net;
+using System.Security.Claims;
 using ElectroShop.Mvc.Services;
 using ElectroShop.Mvc.ViewModels;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 namespace ElectroShop.Mvc.Controllers;
 
 [Authorize(Roles = "Admin"), Route("admin")]
-public sealed class AdminController(ShopApiClient api) : Controller
+public sealed class AdminController(ShopApiClient api, TokenStore tokens) : Controller
 {
+    // Đăng nhập quản trị RIÊNG tại /admin/login: gọi api/auth/admin/login của API.
+    // API chỉ cấp token khi tài khoản có vai trò Admin; tài khoản khách hàng bị từ chối (403).
+    // Tài khoản quản trị được tạo riêng bằng seed hoặc lệnh --create-admin của API,
+    // không thể tạo qua form đăng ký khách hàng (đăng ký luôn gán vai trò Customer).
+    [AllowAnonymous, HttpGet("login")]
+    public IActionResult Login()
+    {
+        if (User.IsInRole("Admin"))
+            return Redirect("/admin");
+        return View("Login");
+    }
+    [AllowAnonymous, HttpPost("login")]
+    public async Task<IActionResult> Login(LoginRequest input, CancellationToken ct)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["Error"] = "Vui lòng nhập email và mật khẩu hợp lệ.";
+            return Redirect("/admin/login");
+        }
+        try
+        {
+            var auth = await api.PostAsync<AuthResponse>("api/auth/admin/login", input, ct)
+                ?? throw new ApiException("Không nhận được phiên đăng nhập quản trị.", HttpStatusCode.BadGateway);
+            if (!auth.User.Roles.Contains("Admin"))
+            {
+                TempData["Error"] = "Tài khoản này không có quyền quản trị.";
+                return Redirect("/admin/login");
+            }
+            tokens.Remove(User.FindFirst("session_id")?.Value);
+            var claims = new List<Claim> { new(ClaimTypes.NameIdentifier, auth.User.Id), new(ClaimTypes.Name, auth.User.FullName), new(ClaimTypes.Email, auth.User.Email), new("session_id", tokens.Add(auth)) };
+            claims.AddRange(auth.User.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme)), new AuthenticationProperties { ExpiresUtc = auth.ExpiresAt, IsPersistent = false });
+            TempData["Success"] = "Đăng nhập quản trị thành công.";
+            return Redirect("/admin");
+        }
+        catch (ApiException ex)
+        {
+            TempData["Error"] = ex.Message;
+            return Redirect("/admin/login");
+        }
+    }
     private static readonly string[] Tabs = ["dashboard", "orders", "products", "customers", "accounts"];
     [HttpGet("")]
     public async Task<IActionResult> Index(string tab = "dashboard", string? q = null, string? status = null, int page = 1, int? editProductId = null, int? editCategoryId = null, string? customerId = null, CancellationToken ct = default)

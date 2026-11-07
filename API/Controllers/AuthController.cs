@@ -28,8 +28,26 @@ public class AuthController(UserManager<ApplicationUser> users, TokenService tok
         }
         return StatusCode(201, await tokens.CreateAsync(user));
     }
+    // Cổng đăng nhập khách hàng: tài khoản Admin KHÔNG dùng chung cổng này.
     [HttpPost("login")]
     public async Task<AuthResponse> Login(LoginRequest request)
+    {
+        var user = await AuthenticateAsync(request);
+        if (await users.IsInRoleAsync(user, "Admin"))
+            throw new ShopException(403, "Tài khoản quản trị không đăng nhập ở cổng khách hàng. Vui lòng vào trang /admin của website để đăng nhập quản trị.");
+        return await tokens.CreateAsync(user);
+    }
+    // Cổng đăng nhập quản trị riêng (dùng bởi trang /admin/login của cả ba frontend):
+    // chỉ chấp nhận tài khoản có vai trò Admin, tài khoản khách hàng bị từ chối ngay tại API.
+    [HttpPost("admin/login")]
+    public async Task<AuthResponse> AdminLogin(LoginRequest request)
+    {
+        var user = await AuthenticateAsync(request);
+        if (!await users.IsInRoleAsync(user, "Admin"))
+            throw new ShopException(403, "Tài khoản này không có quyền quản trị. Khu vực /admin chỉ dành cho tài khoản quản trị riêng.");
+        return await tokens.CreateAsync(user);
+    }
+    private async Task<ApplicationUser> AuthenticateAsync(LoginRequest request)
     {
         var user = await users.FindByEmailAsync(request.Email.Trim());
         if (user is null || !user.IsActive || await users.IsLockedOutAsync(user))
@@ -40,7 +58,7 @@ public class AuthController(UserManager<ApplicationUser> users, TokenService tok
             throw new ShopException(401, "Thông tin đăng nhập không đúng hoặc tài khoản đang bị khóa.");
         }
         await users.ResetAccessFailedCountAsync(user);
-        return await tokens.CreateAsync(user);
+        return user;
     }
     [Authorize, HttpGet("me")]
     public async Task<UserDto> Me()

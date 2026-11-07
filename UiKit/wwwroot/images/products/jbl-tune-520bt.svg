@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 340" role="img" aria-label="JBL Tune 520BT">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fce7f3"/><stop offset="1" stop-color="#f8fafc"/></linearGradient></defs>
+<rect width="440" height="340" fill="url(#bg)"/>
+<circle cx="392" cy="36" r="70" fill="#db2777" opacity="0.10"/>
+<circle cx="30" cy="316" r="56" fill="#db2777" opacity="0.10"/>
+<ellipse cx="220" cy="292" rx="140" ry="10" fill="#1a3550" opacity="0.10"/>
+<path d="M110 218 v-52 a110 78 0 0 1 220 0 v52" fill="none" stroke="#243e60" stroke-width="26" stroke-linecap="round"/><rect x="82" y="196" width="56" height="86" rx="24" fill="#db2777"/><rect x="302" y="196" width="56" height="86" rx="24" fill="#db2777"/><rect x="94" y="214" width="32" height="50" rx="14" fill="#ffffff" opacity="0.35"/><rect x="314" y="214" width="32" height="50" rx="14" fill="#ffffff" opacity="0.35"/>
+<rect x="24" y="298" width="152" height="28" rx="14" fill="#db2777"/>
+<text x="40" y="318" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#ffffff">JBL Tune 520BT</text>
+</svg>

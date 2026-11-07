@@ -71,14 +71,48 @@ app.UseAuthorization();
 app.MapControllers();
 if (app.Environment.IsDevelopment()) app.MapOpenApi();
 app.MapGet("/health", async (AppDbContext db, CancellationToken ct) => await db.Database.CanConnectAsync(ct) ? Results.Ok(new { status = "Healthy", database = "ElectroShopDb" }) : Results.Problem(statusCode: 503, detail: "SQL Server chưa sẵn sàng."));
-if (builder.Configuration.GetValue<bool>("Database:Initialize") || args.Contains("--seed-only"))
+if (builder.Configuration.GetValue<bool>("Database:Initialize") || args.Contains("--seed-only") || args.Contains("--create-admin"))
 {
     await using var scope = app.Services.CreateAsyncScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
     await SeedData.InitializeAsync(scope.ServiceProvider, app.Environment, builder.Configuration);
 }
-if (!args.Contains("--seed-only")) app.Run();
+if (args.Contains("--create-admin"))
+{
+    // Tạo tài khoản quản trị RIÊNG bằng lệnh riêng, không đi qua đăng ký khách hàng:
+    //   dotnet run --project API -- --create-admin   (đọc Seed__AdminEmail / Seed__AdminPassword từ .env)
+    // Lệnh chỉ tạo/gán vai trò Admin cho đúng tài khoản đó rồi thoát, không mở cổng khách hàng.
+    await using var scope = app.Services.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
+    var roles = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    foreach (var name in new[] { "Admin", "Customer" })
+        if (!await roles.RoleExistsAsync(name))
+            await roles.CreateAsync(new IdentityRole(name));
+    var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var email = builder.Configuration["Seed:AdminEmail"];
+    var password = builder.Configuration["Seed:AdminPassword"];
+    if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        throw new InvalidOperationException("Thiếu Seed__AdminEmail / Seed__AdminPassword trong .env để tạo tài khoản quản trị.");
+    var admin = await users.FindByEmailAsync(email);
+    if (admin is null)
+    {
+        admin = new ApplicationUser { UserName = email, Email = email, FullName = "Quản trị ElectroShop", EmailConfirmed = true };
+        var created = await users.CreateAsync(admin, password);
+        if (!created.Succeeded)
+            throw new InvalidOperationException("Tạo tài khoản quản trị thất bại: " + string.Join("; ", created.Errors.Select(x => x.Description)));
+        Console.WriteLine($"CREATE-ADMIN: đã tạo tài khoản quản trị riêng {email}");
+    }
+    else
+        Console.WriteLine($"CREATE-ADMIN: tài khoản quản trị {email} đã tồn tại, giữ nguyên mật khẩu.");
+    if (await users.IsInRoleAsync(admin, "Customer"))
+        await users.RemoveFromRoleAsync(admin, "Customer");
+    if (!await users.IsInRoleAsync(admin, "Admin"))
+        await users.AddToRoleAsync(admin, "Admin");
+    Console.WriteLine($"CREATE-ADMIN: {email} hiện chỉ có vai trò Admin, đăng nhập tại /admin của frontend.");
+}
+if (!args.Contains("--seed-only") && !args.Contains("--create-admin")) app.Run();
 public partial class Program
 {
 }

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 340" role="img" aria-label="LG UltraWide 29&quot;">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fce7f3"/><stop offset="1" stop-color="#f8fafc"/></linearGradient></defs>
+<rect width="440" height="340" fill="url(#bg)"/>
+<circle cx="392" cy="36" r="70" fill="#be185d" opacity="0.10"/>
+<circle cx="30" cy="316" r="56" fill="#be185d" opacity="0.10"/>
+<ellipse cx="220" cy="292" rx="140" ry="10" fill="#1a3550" opacity="0.10"/>
+<rect x="56" y="52" width="328" height="196" rx="10" fill="#243e60"/><rect x="68" y="64" width="304" height="172" rx="4" fill="#be185d" opacity="0.85"/><path d="M68 204 L178 116 l62 56 52-42 80 66 v40 H68 Z" fill="#ffffff" opacity="0.32"/><rect x="206" y="248" width="28" height="30" fill="#7c8ea4"/><rect x="160" y="278" width="120" height="10" rx="5" fill="#7c8ea4"/>
+<rect x="24" y="298" width="170" height="28" rx="14" fill="#be185d"/>
+<text x="40" y="318" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#ffffff">LG UltraWide 29&quot;</text>
+</svg>

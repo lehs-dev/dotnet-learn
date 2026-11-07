@@ -1324,3 +1324,15 @@ details>summary {
 .field input.quantity-input {
     width: 80px
 }
+/* Trang đăng nhập quản trị riêng (/admin/login) dùng chung cho cả ba frontend */
+.auth-page {
+    max-width: 460px;
+    margin: 48px auto;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow)
+}
+.auth-page h1 { font-size: 28px }
+.auth-form { display: grid; gap: 14px; margin: 18px 0 }

@@ -23,15 +23,21 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     options.LoginPath = "/";
     options.AccessDeniedPath = "/";
     options.SlidingExpiration = false;
+    // Khu vực /admin có cổng đăng nhập quản trị riêng; phần còn lại dùng popup khách hàng ở trang chủ.
     options.Events.OnRedirectToLogin = context =>
     {
+        if (context.Request.Path.StartsWithSegments("/admin"))
+        {
+            context.Response.Redirect("/admin/login");
+            return Task.CompletedTask;
+        }
         var returnUrl = context.Request.Path + context.Request.QueryString;
         context.Response.Redirect("/?login=1&ReturnUrl=" + Uri.EscapeDataString(returnUrl));
         return Task.CompletedTask;
     };
     options.Events.OnRedirectToAccessDenied = context =>
     {
-        context.Response.Redirect("/?accessDenied=1");
+        context.Response.Redirect(context.Request.Path.StartsWithSegments("/admin") ? "/admin/login?denied=1" : "/?accessDenied=1");
         return Task.CompletedTask;
     };
     options.Events.OnValidatePrincipal = async context =>

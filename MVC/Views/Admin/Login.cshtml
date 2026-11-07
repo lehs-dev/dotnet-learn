@@ -1,0 +1,21 @@
+@{ ViewData["Title"] = "Đăng nhập quản trị"; }
+<section class="auth-page">
+    <span class="eyebrow">KHU VỰC QUẢN TRỊ</span>
+    <h1>Đăng nhập quản trị</h1>
+    <p>Trang này chỉ dành cho tài khoản quản trị riêng của ElectroShop. Tài khoản khách hàng đăng nhập ở trang chủ và không dùng chung cổng này.</p>
+    @if (User.Identity?.IsAuthenticated == true && !User.IsInRole("Admin"))
+    {
+        <div class="alert error" role="alert">Bạn đang đăng nhập bằng tài khoản khách hàng (@User.Identity.Name). Hãy đăng xuất trước, rồi đăng nhập bằng tài khoản quản trị.</div>
+    }
+    @if (Context.Request.Query.ContainsKey("denied"))
+    {
+        <div class="alert error" role="alert">Tài khoản hiện tại không có quyền quản trị.</div>
+    }
+    <form method="post" action="/admin/login" class="auth-form">
+        @Html.AntiForgeryToken()
+        <div class="field"><label for="admin-email">Email quản trị</label><input id="admin-email" type="email" name="Email" required autocomplete="username" /></div>
+        <div class="field"><label for="admin-password">Mật khẩu</label><input id="admin-password" type="password" name="Password" required autocomplete="current-password" /></div>
+        <button class="button full-width" type="submit">Vào khu vực quản trị</button>
+    </form>
+    <p><a href="/">← Về trang chủ cửa hàng</a></p>
+</section>

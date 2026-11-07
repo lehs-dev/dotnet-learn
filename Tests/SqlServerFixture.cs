@@ -120,6 +120,14 @@ public sealed class SqlServerFixture : IAsyncLifetime
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.UseEnvironment("Development");
+            // Content root trỏ đúng thư mục project API (tên thư mục là "API", khác tên assembly
+            // ElectroShop.Api) để WebApplicationFactory tìm thấy appsettings dù chạy bằng
+            // dotnet test hay xUnit console runner.
+            var dir = new DirectoryInfo(Path.GetDirectoryName(typeof(SqlServerFixture).Assembly.Location)!);
+            while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "ElectroShop.sln")))
+                dir = dir.Parent;
+            if (dir is not null)
+                builder.UseContentRoot(Path.Combine(dir.FullName, "API"));
             builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(new Dictionary<string, string?> { { "Database:Initialize", "false" } }));
         }
     }

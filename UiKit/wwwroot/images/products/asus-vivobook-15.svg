@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 340" role="img" aria-label="Vivobook 15">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dbeafe"/><stop offset="1" stop-color="#f8fafc"/></linearGradient></defs>
+<rect width="440" height="340" fill="url(#bg)"/>
+<circle cx="392" cy="36" r="70" fill="#2563eb" opacity="0.10"/>
+<circle cx="30" cy="316" r="56" fill="#2563eb" opacity="0.10"/>
+<ellipse cx="220" cy="292" rx="140" ry="10" fill="#1a3550" opacity="0.10"/>
+<rect x="82" y="58" width="276" height="168" rx="10" fill="#243e60"/><rect x="94" y="70" width="252" height="144" rx="4" fill="#2563eb" opacity="0.85"/><path d="M94 182 L188 108 l56 50 44-36 46 55 v37 H94 Z" fill="#ffffff" opacity="0.35"/><path d="M58 234 h324 l-22 20 H80 Z" fill="#7c8ea4"/><rect x="182" y="238" width="76" height="7" rx="3" fill="#c3d0df"/>
+<rect x="24" y="298" width="125" height="28" rx="14" fill="#2563eb"/>
+<text x="40" y="318" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="#ffffff">Vivobook 15</text>
+</svg>
